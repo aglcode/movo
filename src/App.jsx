@@ -144,37 +144,11 @@ const App = () => {
                 <div className="container mx-auto px-4 z-20 relative">
                   <div className="max-w-4xl mx-auto text-center">
                     <div className="w-32 h-32 mb-8 mx-auto">
-                      <svg
-                        viewBox="0 0 200 200"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
+                      <img 
+                        src="/logo.svg" 
+                        alt="Logo" 
                         className="w-full h-full"
-                      >
-                        <g clipPath="url(#clip0_238_1284)">
-                          <path
-                            fillRule="evenodd"
-                            clipRule="evenodd"
-                            d="M50 0H0V100C0 155.228 44.7715 200 100 200C155.228 200 200 155.228 200 100V0H150C122.386 0 100 22.3858 100 50C100 22.3858 77.6142 0 50 0Z"
-                            fill="url(#paint0_linear_238_1284)"
-                          />
-                        </g>
-                        <defs>
-                          <linearGradient
-                            id="paint0_linear_238_1284"
-                            x1="100"
-                            y1="0"
-                            x2="100"
-                            y2="200"
-                            gradientUnits="userSpaceOnUse"
-                          >
-                            <stop stopColor="#A7B5FF" />
-                            <stop offset="1" stopColor="#F3ACFF" />
-                          </linearGradient>
-                          <clipPath id="clip0_238_1284">
-                            <rect width="200" height="200" fill="white" />
-                          </clipPath>
-                        </defs>
-                      </svg>
+                      />
                     </div>
                     <p className="text-white text-center text-xl font-semibold tracking-wide mb-8">Movo</p>
 

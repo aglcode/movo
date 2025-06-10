@@ -196,7 +196,7 @@ const MovieDetail = () => {
       <div className='pattern' />
       <div className='wrapper' style={{ position: 'relative', zIndex: 1, padding: '0 20px' }}>
         <header style={{ textAlign: 'center', marginBottom: '20px', paddingTop: '20px' }}>
-          <img src="/movie-stream logo.svg" alt="Hero Logo" style={{ width: '130px', marginBottom: '10px' }} />
+          <img src="/logo.svg" alt="Logo" style={{ width: '80px', marginBottom: '10px' }} />
         </header>
 
         <section className='movie-card' style={{ padding: '20px' }}>
