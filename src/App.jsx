@@ -100,11 +100,14 @@ const App = () => {
   // function for trending movies
   const loadTrendingMovies = async () => {
     try {
-      const movies = await getTrendingMovies();
-
-      setTrendingMovies(movies);
+      const response = await fetch(`${API_BASE_URL}/trending/movie/day`, API_OPTIONS);
+      if (!response.ok) {
+        throw new Error('Failed to fetch trending movies');
+      }
+      const data = await response.json();
+      setTrendingMovies(data.results.slice(0, 5)); // Get top 5 trending movies
     } catch (error) {
-      console.log(`Error fetching trending movies: ${error}`);
+      console.error(`Error fetching trending movies: ${error}`);
     }
   }
 
@@ -114,7 +117,7 @@ const App = () => {
   
   // another useEffect to render trending movies
   useEffect(() => {
-     loadTrendingMovies();
+    loadTrendingMovies();
   }, [])
   
 
@@ -200,8 +203,8 @@ const App = () => {
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                       {trendingMovies.map((movie, index) => (
                         <Link 
-                          to={`/movie/${movie.movie_id}`}
-                          key={movie.$id}
+                          to={`/movie/${movie.id}`}
+                          key={movie.id}
                           className="block relative group cursor-pointer transform transition-all duration-300 hover:scale-105"
                         >
                           <div className="absolute -left-2 -top-2 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-base md:text-xl z-10">
@@ -209,7 +212,7 @@ const App = () => {
                           </div>
                           <div className="relative rounded-xl overflow-hidden">
                             <img 
-                              src={movie.poster_url} 
+                              src={movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : '/No-Poster.png'}
                               alt={movie.title}
                               className="w-full h-[200px] sm:h-[250px] md:h-[300px] object-cover"
                             />
