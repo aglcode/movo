@@ -8,7 +8,6 @@ import Spinner from './components/Spinner'
 import MovieCard from './components/MovieCard';
 import MovieDetail from './components/MovieDetail';
 import Pagination from './components/Pagination';
-import EnvTest from './components/EnvTest';
 
 const API_BASE_URL = 'https://api.themoviedb.org/3'
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
@@ -123,26 +122,24 @@ const App = () => {
     <HeroUIProvider>
       <Routes>
         <Route path="/" element={
-          <div>
-            <EnvTest />
-            <main className="min-h-screen bg-gradient-to-b from-[#0F0F0F] to-[#1A1A1A]">
-              <div className="relative">
-                {/* Hero Section */}
-                <div className="relative h-screen flex items-center justify-center overflow-hidden">
-                  {/* Background Video/Image */}
-                  <div className="absolute inset-0 z-0">
-                    <div className="absolute inset-0 bg-black/60 z-10" />
-                    <img 
-                      src="/bg-purple.png" 
-                      alt="Background"  
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black opacity-70"></div>
-                  </div>
+          <main className="min-h-screen bg-gradient-to-b from-[#0F0F0F] to-[#1A1A1A]">
+            <div className="relative">
+              {/* Hero Section */}
+              <div className="relative h-screen flex items-center justify-center overflow-hidden">
+                {/* Background Video/Image */}
+                <div className="absolute inset-0 z-0">
+                  <div className="absolute inset-0 bg-black/60 z-10" />
+                  <img 
+                    src="/bg-purple.png" 
+                    alt="Background"  
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black opacity-70"></div>
+                </div>
 
-                  {/* Hero Content */}
-                  <div className="container mx-auto px-4 z-20 relative">
-                    <div className="max-w-4xl mx-auto text-center">
+                {/* Hero Content */}
+                <div className="container mx-auto px-4 z-20 relative">
+                  <div className="max-w-4xl mx-auto text-center">
                     <div className="w-32 h-32 mb-8 mx-auto">
                       <svg
                         viewBox="0 0 200 200"
@@ -179,8 +176,8 @@ const App = () => {
                     <p className="text-white text-center text-xl font-semibold tracking-wide mb-8">Movo</p>
 
                     <h1 className="text-5xl md:text-7xl font-bold text-white mb-8 leading-tight">
-                    Where Great <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500">Movies</span> Start
-                  </h1>
+                      Where Great <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500">Movies</span> Start
+                    </h1>
 
                     <p className="text-xl text-gray-300 mb-12">
                       Discover and stream your favorite movies with ease
@@ -188,7 +185,6 @@ const App = () => {
                     <div className="max-w-2xl mx-auto">
                       <Search searchItem={searchItem} setSearchItem={setSearchItem}/>
                     </div>
-                  </div>
                   </div>
                 </div>
 
@@ -212,7 +208,7 @@ const App = () => {
                             {index + 1}
                           </div>
                           <div className="relative rounded-xl overflow-hidden">
-                           <img 
+                            <img 
                               src={movie.poster_url} 
                               alt={movie.title}
                               className="w-full h-[200px] sm:h-[250px] md:h-[300px] object-cover"
@@ -256,8 +252,8 @@ const App = () => {
                   )}
                 </div>
               </section>
-            </main>
-          </div>
+            </div>
+          </main>
         } />
         <Route path="/movie/:id" element={<MovieDetail />} />
       </Routes>
