@@ -13,6 +13,11 @@ import EnvTest from './components/EnvTest';
 const API_BASE_URL = 'https://api.themoviedb.org/3'
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
+// Validate TMDB API key
+if (!API_KEY) {
+    console.error('Missing TMDB API key');
+}
+
 // CURL Request
 const API_OPTIONS = {
   method: 'GET',
