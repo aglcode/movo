@@ -8,6 +8,7 @@ import Spinner from './components/Spinner'
 import MovieCard from './components/MovieCard';
 import MovieDetail from './components/MovieDetail';
 import Pagination from './components/Pagination';
+import EnvTest from './components/EnvTest';
 
 const API_BASE_URL = 'https://api.themoviedb.org/3'
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
@@ -116,63 +117,65 @@ const App = () => {
   return (
     <HeroUIProvider>
       <Routes>
-        <Route path="/" element={(
-          <main className="min-h-screen bg-gradient-to-b from-[#0F0F0F] to-[#1A1A1A]">
-            <div className="relative">
-              {/* Hero Section */}
-              <div className="relative h-screen flex items-center justify-center overflow-hidden">
-                {/* Background Video/Image */}
-                <div className="absolute inset-0 z-0">
-                  <div className="absolute inset-0 bg-black/60 z-10" />
-                  <img 
-                    src="/bg-purple.png" 
-                    alt="Background"  
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black opacity-70"></div>
-                </div>
-
-                {/* Hero Content */}
-                <div className="container mx-auto px-4 z-20 relative">
-                  <div className="max-w-4xl mx-auto text-center">
-                  <div className="w-32 h-32 mb-8 mx-auto">
-                    <svg
-                      viewBox="0 0 200 200"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="w-full h-full"
-                    >
-                      <g clipPath="url(#clip0_238_1284)">
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M50 0H0V100C0 155.228 44.7715 200 100 200C155.228 200 200 155.228 200 100V0H150C122.386 0 100 22.3858 100 50C100 22.3858 77.6142 0 50 0Z"
-                          fill="url(#paint0_linear_238_1284)"
-                        />
-                      </g>
-                      <defs>
-                        <linearGradient
-                          id="paint0_linear_238_1284"
-                          x1="100"
-                          y1="0"
-                          x2="100"
-                          y2="200"
-                          gradientUnits="userSpaceOnUse"
-                        >
-                          <stop stopColor="#A7B5FF" />
-                          <stop offset="1" stopColor="#F3ACFF" />
-                        </linearGradient>
-                        <clipPath id="clip0_238_1284">
-                          <rect width="200" height="200" fill="white" />
-                        </clipPath>
-                      </defs>
-                    </svg>
+        <Route path="/" element={
+          <div>
+            <EnvTest />
+            <main className="min-h-screen bg-gradient-to-b from-[#0F0F0F] to-[#1A1A1A]">
+              <div className="relative">
+                {/* Hero Section */}
+                <div className="relative h-screen flex items-center justify-center overflow-hidden">
+                  {/* Background Video/Image */}
+                  <div className="absolute inset-0 z-0">
+                    <div className="absolute inset-0 bg-black/60 z-10" />
+                    <img 
+                      src="/bg-purple.png" 
+                      alt="Background"  
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black opacity-70"></div>
                   </div>
-                  <p className="text-white text-center text-xl font-semibold tracking-wide mb-8">Movo</p>
 
-                  <h1 className="text-5xl md:text-7xl font-bold text-white mb-8 leading-tight">
-                  Where Great <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500">Movies</span> Start
-                </h1>
+                  {/* Hero Content */}
+                  <div className="container mx-auto px-4 z-20 relative">
+                    <div className="max-w-4xl mx-auto text-center">
+                    <div className="w-32 h-32 mb-8 mx-auto">
+                      <svg
+                        viewBox="0 0 200 200"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-full h-full"
+                      >
+                        <g clipPath="url(#clip0_238_1284)">
+                          <path
+                            fillRule="evenodd"
+                            clipRule="evenodd"
+                            d="M50 0H0V100C0 155.228 44.7715 200 100 200C155.228 200 200 155.228 200 100V0H150C122.386 0 100 22.3858 100 50C100 22.3858 77.6142 0 50 0Z"
+                            fill="url(#paint0_linear_238_1284)"
+                          />
+                        </g>
+                        <defs>
+                          <linearGradient
+                            id="paint0_linear_238_1284"
+                            x1="100"
+                            y1="0"
+                            x2="100"
+                            y2="200"
+                            gradientUnits="userSpaceOnUse"
+                          >
+                            <stop stopColor="#A7B5FF" />
+                            <stop offset="1" stopColor="#F3ACFF" />
+                          </linearGradient>
+                          <clipPath id="clip0_238_1284">
+                            <rect width="200" height="200" fill="white" />
+                          </clipPath>
+                        </defs>
+                      </svg>
+                    </div>
+                    <p className="text-white text-center text-xl font-semibold tracking-wide mb-8">Movo</p>
+
+                    <h1 className="text-5xl md:text-7xl font-bold text-white mb-8 leading-tight">
+                    Where Great <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500">Movies</span> Start
+                  </h1>
 
                     <p className="text-xl text-gray-300 mb-12">
                       Discover and stream your favorite movies with ease
@@ -180,6 +183,7 @@ const App = () => {
                     <div className="max-w-2xl mx-auto">
                       <Search searchItem={searchItem} setSearchItem={setSearchItem}/>
                     </div>
+                  </div>
                   </div>
                 </div>
 
@@ -247,9 +251,9 @@ const App = () => {
                   )}
                 </div>
               </section>
-            </div>
-          </main>
-        )} />
+            </main>
+          </div>
+        } />
         <Route path="/movie/:id" element={<MovieDetail />} />
       </Routes>
     </HeroUIProvider>
