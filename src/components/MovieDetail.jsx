@@ -199,190 +199,194 @@ const MovieDetail = () => {
           <img src="/logo.svg" alt="Logo" style={{ width: '80px', marginBottom: '10px' }} />
         </header>
 
-        <section className='movie-card' style={{ padding: '20px' }}>
-          <div style={{ display: 'flex', gap: '20px', flexDirection: 'column' }}>
-            {trailerKey ? (
-              <div style={{ position: 'relative', paddingTop: '56.25%', marginBottom: '20px' }}>
-                <iframe
-                  src={`https://www.youtube.com/embed/${trailerKey}`}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', borderRadius: '8px' }}
-                  title="Movie Trailer"
-                ></iframe>
-              </div>
-            ) : (
-              <div style={{
-                textAlign: 'center',
-                marginBottom: '20px',
-                width: '100%',
-                height: '400px',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                backgroundColor: '#343A40',
-                borderRadius: '8px',
-                color: 'white',
-                fontSize: '1.5em',
-                fontWeight: 'bold'
-              }}>
-                Poster Not Available
-              </div>
-            )}
-
-            <div style={{ 
-              display: 'flex', 
-              gap: '20px', 
-              alignItems: 'flex-start',
-              flexDirection: window.innerWidth <= 768 ? 'column' : 'row'
-            }}>
-              {movie.poster_path && (
-                <img
-                  src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
-                  alt={movie.title}
-                  style={{ 
-                    borderRadius: '8px', 
-                    flexShrink: 0, 
-                    width: window.innerWidth <= 768 ? '100%' : '150px', 
-                    height: window.innerWidth <= 768 ? 'auto' : '225px', 
-                    objectFit: 'cover',
-                    maxWidth: window.innerWidth <= 768 ? '200px' : '150px',
-                    margin: window.innerWidth <= 768 ? '0 auto' : '0'
-                  }}
-                />
-              )}
-              <div style={{ flexGrow: 1 }}>
-                <h1 className='text-gradient' style={{ 
-                  fontSize: window.innerWidth <= 768 ? '1.8em' : '2.5em', 
-                  marginBottom: '10px', 
-                  color: 'white', 
-                  textAlign: 'left', 
-                  margin: '0 0 10px 0', 
-                  padding: '0' 
-                }}>{movie.title}</h1>
-
-                {movie.tagline && (
-                  <p style={{ 
-                    color: 'white', 
-                    marginBottom: '15px', 
-                    fontStyle: 'italic', 
-                    textAlign: 'left', 
-                    margin: '0 0 15px 0', 
-                    padding: '0',
-                    fontSize: window.innerWidth <= 768 ? '0.9em' : '1em'
+        <div className="max-w-7xl mx-auto bg-black/80 backdrop-blur-sm border border-white/10 rounded-xl shadow-lg">
+          <div className="p-8">
+            <section className='movie-card'>
+              <div style={{ display: 'flex', gap: '20px', flexDirection: 'column' }}>
+                {trailerKey ? (
+                  <div style={{ position: 'relative', paddingTop: '56.25%', marginBottom: '20px' }}>
+                    <iframe
+                      src={`https://www.youtube.com/embed/${trailerKey}`}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', borderRadius: '8px' }}
+                      title="Movie Trailer"
+                    ></iframe>
+                  </div>
+                ) : (
+                  <div style={{
+                    textAlign: 'center',
+                    marginBottom: '20px',
+                    width: '100%',
+                    height: '400px',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    backgroundColor: '#343A40',
+                    borderRadius: '8px',
+                    color: 'white',
+                    fontSize: '1.5em',
+                    fontWeight: 'bold'
                   }}>
-                    {movie.tagline}
-                  </p>
+                    Poster Not Available
+                  </div>
                 )}
 
                 <div style={{ 
-                  marginBottom: '15px', 
-                  textAlign: 'left', 
-                  color: 'white',
-                  fontSize: window.innerWidth <= 768 ? '0.9em' : '1em'
-                }}>
-                  <strong>Released:</strong> {movie.release_date || 'Not available'}
-                </div>
-                <div style={{ 
-                  marginBottom: '15px', 
-                  textAlign: 'left', 
-                  color: 'white',
-                  fontSize: window.innerWidth <= 768 ? '0.9em' : '1em'
-                }}>
-                  <strong>Duration:</strong> {movie.runtime ? `${movie.runtime} min` : 'Not available'}
-                </div>
-                <div style={{ 
-                  marginBottom: '15px', 
-                  textAlign: 'left', 
-                  color: 'white',
-                  fontSize: window.innerWidth <= 768 ? '0.9em' : '1em'
-                }}>
-                  <strong>Genre:</strong> {movie.genres?.length > 0 ? movie.genres.map(genre => genre.name).join(', ') : 'Not available'}
-                </div>
-                <div style={{ 
-                  marginBottom: '15px', 
-                  textAlign: 'left', 
-                  color: 'white',
-                  fontSize: window.innerWidth <= 768 ? '0.9em' : '1em'
-                }}>
-                  <strong>Country:</strong> {movie.production_countries?.length > 0 ? movie.production_countries.map(country => country.name).join(', ') : 'Not available'}
-                </div>
-                <div style={{ 
-                  marginBottom: '15px', 
-                  textAlign: 'left', 
-                  color: 'white',
-                  fontSize: window.innerWidth <= 768 ? '0.9em' : '1em'
-                }}>
-                  <strong>Production:</strong> {movie.production_companies?.length > 0 ? movie.production_companies.map(company => company.name).join(', ') : 'Not available'}
-                </div>
-
-                {movie.overview && (
-                  <p style={{ 
-                    lineHeight: '1.6', 
-                    color: 'white', 
-                    marginBottom: '20px', 
-                    textAlign: 'left', 
-                    margin: '0 0 20px 0', 
-                    padding: '0',
-                    fontSize: window.innerWidth <= 768 ? '0.9em' : '1em'
-                  }}>
-                    {movie.overview}
-                  </p>
-                )}
-
-                {/* Render Watch Providers */}
-                {renderProviders('flatrate', 'Stream On')}
-                {renderProviders(['buy', 'rent'], 'Buy/Rent On')}
-
-                <div style={{ 
-                  marginTop: '20px', 
                   display: 'flex', 
-                  gap: '10px', 
-                  justifyContent: 'flex-start',
+                  gap: '20px', 
+                  alignItems: 'flex-start',
                   flexDirection: window.innerWidth <= 768 ? 'column' : 'row'
                 }}>
-                  {providers && providers.link ? (
-                    <a 
-                      href={providers.link} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      style={{
-                        padding: '10px 20px',
-                        backgroundColor: '#007bff',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '5px',
-                        cursor: 'pointer',
-                        textDecoration: 'none',
-                        display: 'inline-block',
-                        textAlign: 'center',
-                        width: window.innerWidth <= 768 ? '100%' : 'auto'
+                  {movie.poster_path && (
+                    <img
+                      src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
+                      alt={movie.title}
+                      style={{ 
+                        borderRadius: '8px', 
+                        flexShrink: 0, 
+                        width: window.innerWidth <= 768 ? '100%' : '150px', 
+                        height: window.innerWidth <= 768 ? 'auto' : '225px', 
+                        objectFit: 'cover',
+                        maxWidth: window.innerWidth <= 768 ? '200px' : '150px',
+                        margin: window.innerWidth <= 768 ? '0 auto' : '0'
                       }}
-                    >
-                      Watch now
-                    </a>
-                  ) : (
-                    <button 
-                      style={{
-                        padding: '10px 20px',
-                        backgroundColor: '#007bff',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '5px',
-                        cursor: 'not-allowed',
-                        opacity: 0.6,
-                        width: window.innerWidth <= 768 ? '100%' : 'auto'
-                      }}
-                      disabled
-                    >
-                      Watch now (No providers)
-                    </button>
+                    />
                   )}
+                  <div style={{ flexGrow: 1 }}>
+                    <h1 className='text-gradient' style={{ 
+                      fontSize: window.innerWidth <= 768 ? '1.8em' : '2.5em', 
+                      marginBottom: '10px', 
+                      color: 'white', 
+                      textAlign: 'left', 
+                      margin: '0 0 10px 0', 
+                      padding: '0' 
+                    }}>{movie.title}</h1>
+
+                    {movie.tagline && (
+                      <p style={{ 
+                        color: 'white', 
+                        marginBottom: '15px', 
+                        fontStyle: 'italic', 
+                        textAlign: 'left', 
+                        margin: '0 0 15px 0', 
+                        padding: '0',
+                        fontSize: window.innerWidth <= 768 ? '0.9em' : '1em'
+                      }}>
+                        {movie.tagline}
+                      </p>
+                    )}
+
+                    <div style={{ 
+                      marginBottom: '15px', 
+                      textAlign: 'left', 
+                      color: 'white',
+                      fontSize: window.innerWidth <= 768 ? '0.9em' : '1em'
+                    }}>
+                      <strong>Released:</strong> {movie.release_date || 'Not available'}
+                    </div>
+                    <div style={{ 
+                      marginBottom: '15px', 
+                      textAlign: 'left', 
+                      color: 'white',
+                      fontSize: window.innerWidth <= 768 ? '0.9em' : '1em'
+                    }}>
+                      <strong>Duration:</strong> {movie.runtime ? `${movie.runtime} min` : 'Not available'}
+                    </div>
+                    <div style={{ 
+                      marginBottom: '15px', 
+                      textAlign: 'left', 
+                      color: 'white',
+                      fontSize: window.innerWidth <= 768 ? '0.9em' : '1em'
+                    }}>
+                      <strong>Genre:</strong> {movie.genres?.length > 0 ? movie.genres.map(genre => genre.name).join(', ') : 'Not available'}
+                    </div>
+                    <div style={{ 
+                      marginBottom: '15px', 
+                      textAlign: 'left', 
+                      color: 'white',
+                      fontSize: window.innerWidth <= 768 ? '0.9em' : '1em'
+                    }}>
+                      <strong>Country:</strong> {movie.production_countries?.length > 0 ? movie.production_countries.map(country => country.name).join(', ') : 'Not available'}
+                    </div>
+                    <div style={{ 
+                      marginBottom: '15px', 
+                      textAlign: 'left', 
+                      color: 'white',
+                      fontSize: window.innerWidth <= 768 ? '0.9em' : '1em'
+                    }}>
+                      <strong>Production:</strong> {movie.production_companies?.length > 0 ? movie.production_companies.map(company => company.name).join(', ') : 'Not available'}
+                    </div>
+
+                    {movie.overview && (
+                      <p style={{ 
+                        lineHeight: '1.6', 
+                        color: 'white', 
+                        marginBottom: '20px', 
+                        textAlign: 'left', 
+                        margin: '0 0 20px 0', 
+                        padding: '0',
+                        fontSize: window.innerWidth <= 768 ? '0.9em' : '1em'
+                      }}>
+                        {movie.overview}
+                      </p>
+                    )}
+
+                    {/* Render Watch Providers */}
+                    {renderProviders('flatrate', 'Stream On')}
+                    {renderProviders(['buy', 'rent'], 'Buy/Rent On')}
+
+                    <div style={{ 
+                      marginTop: '20px', 
+                      display: 'flex', 
+                      gap: '10px', 
+                      justifyContent: 'flex-start',
+                      flexDirection: window.innerWidth <= 768 ? 'column' : 'row'
+                    }}>
+                      {providers && providers.link ? (
+                        <a 
+                          href={providers.link} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          style={{
+                            padding: '10px 20px',
+                            backgroundColor: '#007bff',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '5px',
+                            cursor: 'pointer',
+                            textDecoration: 'none',
+                            display: 'inline-block',
+                            textAlign: 'center',
+                            width: window.innerWidth <= 768 ? '100%' : 'auto'
+                          }}
+                        >
+                          Watch now
+                        </a>
+                      ) : (
+                        <button 
+                          style={{
+                            padding: '10px 20px',
+                            backgroundColor: '#007bff',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '5px',
+                            cursor: 'not-allowed',
+                            opacity: 0.6,
+                            width: window.innerWidth <= 768 ? '100%' : 'auto'
+                          }}
+                          disabled
+                        >
+                          Watch now (No providers)
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
+            </section>
           </div>
-        </section>
+        </div>
       </div>
     </main>
   );

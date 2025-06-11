@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.4",
+    "@heroicons/react": "^2.2.0",
     "@heroui/pagination": "^2.2.19",
     "@heroui/react": "^2.7.10",
     "@radix-ui/react-slot": "^1.2.3",
@@ -37,6 +39,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
+    "tailwind-scrollbar-hide": "^4.0.0",
     "tw-animate-css": "^1.3.4",
     "vite": "^6.3.5"
   }
