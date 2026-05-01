@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { getTrendingMovies, updateSearchCount } from './appwrite';
+import { getTrendingMovies, updateSearchCount } from './supabase';
 import { useDebounce } from 'react-use';
 import { Routes, Route, Link } from 'react-router-dom';
 import { HeroUIProvider } from "@heroui/react";
@@ -14,7 +14,7 @@ const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
 // Validate TMDB API key
 if (!API_KEY) {
-    console.error('Missing TMDB API key');
+  console.error('Missing TMDB API key');
 }
 
 // CURL Request
@@ -81,22 +81,22 @@ const App = () => {
         : `${API_BASE_URL}/discover/movie?sort_by=popularity.desc&page=${page}`;
 
       const response = await fetch(endpoint, API_OPTIONS);
-      
-      if(!response.ok) {
+
+      if (!response.ok) {
         throw new Error('Failed to fetch movies');
       }
       const data = await response.json();
-      
-      if(data.response === 'false') {
+
+      if (data.response === 'false') {
         setErrorMessage(data.error || 'Failed to fetch movies');
         setMovieList([]);
         return;
       }
-      
+
       setMovieList(data.results || []);
       setTotalPages(Math.min(data.total_pages, 500)); // TMDB API limits to 500 pages
 
-      if(query && data.results.length > 0) {
+      if (query && data.results.length > 0) {
         await updateSearchCount(query, data.results[0]);
       }
 
@@ -173,12 +173,12 @@ const App = () => {
   useEffect(() => {
     fetchMovies(debouncedSearchItem, currentPage);
   }, [debouncedSearchItem, currentPage]);
-  
+
   // another useEffect to render trending movies
   useEffect(() => {
     loadTrendingMovies();
   }, [])
-  
+
   // Update useEffect to fetch genres
   useEffect(() => {
     fetchGenres();
@@ -202,9 +202,9 @@ const App = () => {
                 {/* Background Video/Image */}
                 <div className="absolute inset-0 z-0">
                   <div className="absolute inset-0 bg-black/60 z-10" />
-                  <img 
-                    src="/bg-purple.png" 
-                    alt="Background"  
+                  <img
+                    src="/bg-purple.png"
+                    alt="Background"
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-black opacity-70"></div>
@@ -214,9 +214,9 @@ const App = () => {
                 <div className="container mx-auto px-4 z-20 relative">
                   <div className="max-w-4xl mx-auto text-center">
                     <div className="w-32 h-32 mb-8 mx-auto">
-                      <img 
-                        src="/logo.svg" 
-                        alt="Logo" 
+                      <img
+                        src="/logo.svg"
+                        alt="Logo"
                         className="w-full h-full"
                       />
                     </div>
@@ -230,7 +230,7 @@ const App = () => {
                       Discover and stream your favorite movies with ease
                     </p>
                     <div className="max-w-2xl mx-auto">
-                      <Search searchItem={searchItem} setSearchItem={setSearchItem}/>
+                      <Search searchItem={searchItem} setSearchItem={setSearchItem} />
                     </div>
                   </div>
                 </div>
@@ -257,13 +257,13 @@ const App = () => {
                       </button>
 
                       {/* Trending Movies Carousel */}
-                      <div 
+                      <div
                         ref={el => carouselRefs.current['trending'] = el}
                         className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x snap-mandatory"
                       >
                         {trendingMovies.map((movie, index) => (
                           <div key={movie.id} className="flex-none w-[260px] snap-start">
-                            <Link 
+                            <Link
                               to={`/movie/${movie.id}`}
                               className="block relative group cursor-pointer transform transition-all duration-300 hover:scale-105"
                             >
@@ -271,7 +271,7 @@ const App = () => {
                                 {index + 1}
                               </div>
                               <div className="relative rounded-xl overflow-hidden mt-6">
-                                <img 
+                                <img
                                   src={movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : '/No-Poster.png'}
                                   alt={movie.title}
                                   className="w-full h-[300px] object-cover"
@@ -313,7 +313,7 @@ const App = () => {
               <section className="py-20 bg-[#0F0F0F]">
                 <div className="container mx-auto px-4">
                   <h2 className="text-3xl font-bold text-white mb-12">Browse by Genre</h2>
-                  
+
                   {genres.map((genre) => (
                     <div key={genre.id} className="mb-12">
                       <h3 className="text-2xl font-bold text-white mb-6">{genre.name}</h3>
@@ -330,18 +330,18 @@ const App = () => {
                         </button>
 
                         {/* Movies Carousel */}
-                        <div 
+                        <div
                           ref={el => carouselRefs.current[genre.id] = el}
                           className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x snap-mandatory"
                         >
                           {categorizedMovies[genre.id]?.map((movie) => (
                             <div key={movie.id} className="flex-none w-[200px] snap-start">
-                              <Link 
+                              <Link
                                 to={`/movie/${movie.id}`}
                                 className="block relative group transform transition-all duration-300 hover:scale-105"
                               >
                                 <div className="relative rounded-xl overflow-hidden">
-                                  <img 
+                                  <img
                                     src={movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : '/No-Poster.png'}
                                     alt={movie.title}
                                     className="w-full h-[300px] object-cover"
@@ -392,13 +392,13 @@ const App = () => {
                     <>
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                         {movieList.map((movie) => (
-                          <Link 
+                          <Link
                             key={movie.id}
                             to={`/movie/${movie.id}`}
                             className="block relative group transform transition-all duration-300 hover:scale-105"
                           >
                             <div className="relative rounded-xl overflow-hidden">
-                              <img 
+                              <img
                                 src={movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : '/No-Poster.png'}
                                 alt={movie.title}
                                 className="w-full h-[400px] object-cover"
