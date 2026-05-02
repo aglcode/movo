@@ -2,7 +2,11 @@ import React, { useState, useEffect, useRef } from 'react'
 import { getTrendingMovies, updateSearchCount } from './supabase';
 import { useDebounce } from 'react-use';
 import { Routes, Route, Link } from 'react-router-dom';
-import { HeroUIProvider } from "@heroui/react";
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { IconChevronLeft, IconChevronRight, IconStarFilled } from '@tabler/icons-react';
 import Search from './components/Search'
 import Spinner from './components/Spinner'
 import MovieCard from './components/MovieCard';
@@ -12,12 +16,10 @@ import Pagination from './components/Pagination';
 const API_BASE_URL = 'https://api.themoviedb.org/3'
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
-// Validate TMDB API key
 if (!API_KEY) {
   console.error('Missing TMDB API key');
 }
 
-// CURL Request
 const API_OPTIONS = {
   method: 'GET',
   headers: {
@@ -27,38 +29,19 @@ const API_OPTIONS = {
 }
 
 const App = () => {
-
-  // useState for search
   const [searchItem, setSearchItem] = useState('');
-
-  // useState for error messages
   const [errorMessage, setErrorMessage] = useState('');
-
-  // useState for movie list
   const [movieList, setMovieList] = useState([]);
-
-  // useState for loading
   const [isLoading, setIsLoading] = useState(false);
-
-  // useState for Trending movies top ranking
   const [trendingMovies, setTrendingMovies] = useState([]);
-
-  // useState for debounce | used for seacrh optimization | prevent too many API req
   const [debouncedSearchItem, setDebouncedSearchItem] = useState('');
-
-  // Add pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-
-  // Add new state for genres and categorized movies
   const [genres, setGenres] = useState([]);
   const [categorizedMovies, setCategorizedMovies] = useState({});
-  const [selectedGenre, setSelectedGenre] = useState(null);
 
-  // Add refs for carousel scrolling
   const carouselRefs = useRef({});
 
-  // Function to scroll carousel
   const scrollCarousel = (genreId, direction) => {
     const carousel = carouselRefs.current[genreId];
     if (carousel) {
@@ -67,10 +50,8 @@ const App = () => {
     }
   };
 
-  // implement the debounce hook at the search hook | wait for user to stop typing by 500ms
   useDebounce(() => setDebouncedSearchItem(searchItem), 500, [searchItem])
 
-  // fetch movies from the TMDB
   const fetchMovies = async (query = '', page = 1) => {
     setIsLoading(true);
     setErrorMessage('');
@@ -94,7 +75,7 @@ const App = () => {
       }
 
       setMovieList(data.results || []);
-      setTotalPages(Math.min(data.total_pages, 500)); // TMDB API limits to 500 pages
+      setTotalPages(Math.min(data.total_pages, 500));
 
       if (query && data.results.length > 0) {
         await updateSearchCount(query, data.results[0]);
@@ -108,13 +89,11 @@ const App = () => {
     }
   }
 
-  // Handle page change
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
     fetchMovies(debouncedSearchItem, newPage);
   };
 
-  // function for trending movies
   const loadTrendingMovies = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/trending/movie/day`, API_OPTIONS);
@@ -122,13 +101,12 @@ const App = () => {
         throw new Error('Failed to fetch trending movies');
       }
       const data = await response.json();
-      setTrendingMovies(data.results.slice(0, 10)); // Get top 10 trending movies
+      setTrendingMovies(data.results.slice(0, 10));
     } catch (error) {
       console.error(`Error fetching trending movies: ${error}`);
     }
   }
 
-  // Fetch genres from TMDB
   const fetchGenres = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/genre/movie/list`, API_OPTIONS);
@@ -142,7 +120,6 @@ const App = () => {
     }
   };
 
-  // Fetch movies by genre
   const fetchMoviesByGenre = async (genreId, page = 1) => {
     try {
       const response = await fetch(
@@ -160,7 +137,6 @@ const App = () => {
     }
   };
 
-  // Load movies for each genre
   const loadCategorizedMovies = async () => {
     const moviesByGenre = {};
     for (const genre of genres) {
@@ -174,32 +150,42 @@ const App = () => {
     fetchMovies(debouncedSearchItem, currentPage);
   }, [debouncedSearchItem, currentPage]);
 
-  // another useEffect to render trending movies
   useEffect(() => {
     loadTrendingMovies();
   }, [])
 
-  // Update useEffect to fetch genres
   useEffect(() => {
     fetchGenres();
   }, []);
 
-  // Update useEffect to load categorized movies when genres are loaded
   useEffect(() => {
     if (genres.length > 0) {
       loadCategorizedMovies();
     }
   }, [genres]);
 
+  // Carousel arrow button component
+  const CarouselArrow = ({ direction, onClick }) => (
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={onClick}
+      className={`absolute ${direction === 'left' ? 'left-0' : 'right-0'} top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-black/70 text-white rounded-full backdrop-blur-sm`}
+      aria-label={`Scroll ${direction}`}
+    >
+      {direction === 'left' ? <IconChevronLeft className="size-5" /> : <IconChevronRight className="size-5" />}
+    </Button>
+  );
+
   return (
-    <HeroUIProvider>
+    <TooltipProvider>
       <Routes>
         <Route path="/" element={
-          <main className="min-h-screen bg-gradient-to-b from-[#0F0F0F] to-[#1A1A1A]">
+          <main className="min-h-screen bg-background">
             <div className="relative">
               {/* Hero Section */}
               <div className="relative h-screen flex items-center justify-center overflow-hidden">
-                {/* Background Video/Image */}
+                {/* Background */}
                 <div className="absolute inset-0 z-0">
                   <div className="absolute inset-0 bg-black/60 z-10" />
                   <img
@@ -207,7 +193,7 @@ const App = () => {
                     alt="Background"
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-black opacity-70"></div>
+                  <div className="absolute inset-0 bg-black opacity-70" />
                 </div>
 
                 {/* Hero Content */}
@@ -220,13 +206,13 @@ const App = () => {
                         className="w-full h-full"
                       />
                     </div>
-                    <p className="text-white text-center text-xl font-semibold tracking-wide mb-8">Movo</p>
+                    <p className="text-foreground text-center text-xl font-heading font-semibold tracking-wide mb-8">Movo</p>
 
-                    <h1 className="text-5xl md:text-7xl font-bold text-white mb-8 leading-tight">
-                      Where Great <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500">Movies</span> Start
+                    <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-8 leading-tight max-w-none">
+                      Where Great <span className="text-gradient">Movies</span> Start
                     </h1>
 
-                    <p className="text-xl text-gray-300 mb-12">
+                    <p className="text-xl text-muted-foreground mb-12">
                       Discover and stream your favorite movies with ease
                     </p>
                     <div className="max-w-2xl mx-auto">
@@ -235,31 +221,25 @@ const App = () => {
                   </div>
                 </div>
 
-                {/* Bottom Fade to Black Gradient */}
-                <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-black backdrop-blur-md z-10" />
+                {/* Bottom Fade */}
+                <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-[#0F0F0F] z-10" />
               </div>
 
               {/* Trending Movies Section */}
               {trendingMovies.length > 0 && (
-                <section className="py-20 bg-[#000000]">
+                <section className="py-20 bg-[#0F0F0F]">
                   <div className="container mx-auto px-4">
-                    <h2 className="text-3xl font-bold text-white mb-12">Top 10 Trending Movies</h2>
+                    <div className="flex items-center gap-3 mb-12">
+                      <h2 className="text-3xl font-heading font-bold text-foreground">Top 10 Trending</h2>
+                      <Badge className="bg-primary/20 text-primary border-primary/30">Today</Badge>
+                    </div>
                     <div className="relative">
-                      {/* Left Arrow */}
-                      <button
-                        onClick={() => scrollCarousel('trending', 'left')}
-                        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all duration-300"
-                        aria-label="Scroll left"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                        </svg>
-                      </button>
+                      <CarouselArrow direction="left" onClick={() => scrollCarousel('trending', 'left')} />
 
-                      {/* Trending Movies Carousel */}
+                      {/* Trending Carousel */}
                       <div
                         ref={el => carouselRefs.current['trending'] = el}
-                        className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x snap-mandatory"
+                        className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x snap-mandatory px-2"
                       >
                         {trendingMovies.map((movie, index) => (
                           <div key={movie.id} className="flex-none w-[260px] snap-start">
@@ -267,20 +247,24 @@ const App = () => {
                               to={`/movie/${movie.id}`}
                               className="block relative group cursor-pointer transform transition-all duration-300 hover:scale-105"
                             >
-                              <div className="absolute left-2 top-2 w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-lg z-10">
+                              <div className="absolute left-2 top-2 w-10 h-10 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold text-lg z-10 ring-2 ring-primary/30">
                                 {index + 1}
                               </div>
-                              <div className="relative rounded-xl overflow-hidden mt-6">
+                              <Badge className="absolute right-2 top-2 bg-black/60 backdrop-blur-sm text-yellow-400 border-white/10 gap-1 z-10">
+                                <IconStarFilled className="size-3" />
+                                {movie.vote_average?.toFixed(1)}
+                              </Badge>
+                              <div className="relative rounded-xl overflow-hidden mt-6 transform-gpu [backface-visibility:hidden]">
                                 <img
                                   src={movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : '/No-Poster.png'}
                                   alt={movie.title}
-                                  className="w-full h-[300px] object-cover"
+                                  className="w-full h-[340px] object-cover transition-transform duration-500 group-hover:scale-110 transform-gpu [backface-visibility:hidden]"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                   <div className="absolute bottom-0 p-4">
-                                    <h3 className="text-lg font-bold text-white">{movie.title}</h3>
-                                    <p className="text-sm text-gray-300 mt-1">
-                                      {new Date(movie.release_date).getFullYear()}
+                                    <h3 className="text-lg font-bold text-foreground">{movie.title}</h3>
+                                    <p className="text-sm text-muted-foreground mt-1">
+                                      {movie.release_date ? new Date(movie.release_date).getFullYear() : 'N/A'}
                                     </p>
                                   </div>
                                 </div>
@@ -290,20 +274,10 @@ const App = () => {
                         ))}
                       </div>
 
-                      {/* Right Arrow */}
-                      <button
-                        onClick={() => scrollCarousel('trending', 'right')}
-                        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all duration-300"
-                        aria-label="Scroll right"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </button>
+                      <CarouselArrow direction="right" onClick={() => scrollCarousel('trending', 'right')} />
 
-                      {/* Gradient fades on both sides */}
-                      <div className="carousel-gradient-left"></div>
-                      <div className="carousel-gradient-right"></div>
+                      <div className="carousel-gradient-left" />
+                      <div className="carousel-gradient-right" />
                     </div>
                   </div>
                 </section>
@@ -312,68 +286,34 @@ const App = () => {
               {/* Genre Categories Section */}
               <section className="py-20 bg-[#0F0F0F]">
                 <div className="container mx-auto px-4">
-                  <h2 className="text-3xl font-bold text-white mb-12">Browse by Genre</h2>
+                  <h2 className="text-3xl font-heading font-bold text-foreground mb-12">Browse by Genre</h2>
 
                   {genres.map((genre) => (
-                    <div key={genre.id} className="mb-12">
-                      <h3 className="text-2xl font-bold text-white mb-6">{genre.name}</h3>
+                    <div key={genre.id} className="mb-14">
+                      <div className="flex items-center gap-3 mb-6">
+                        <h3 className="text-xl font-heading font-bold text-foreground">{genre.name}</h3>
+                        <Badge variant="outline" className="text-xs">
+                          {categorizedMovies[genre.id]?.length || 0} movies
+                        </Badge>
+                      </div>
                       <div className="relative">
-                        {/* Left Arrow */}
-                        <button
-                          onClick={() => scrollCarousel(genre.id, 'left')}
-                          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all duration-300"
-                          aria-label="Scroll left"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                          </svg>
-                        </button>
+                        <CarouselArrow direction="left" onClick={() => scrollCarousel(genre.id, 'left')} />
 
-                        {/* Movies Carousel */}
                         <div
                           ref={el => carouselRefs.current[genre.id] = el}
-                          className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x snap-mandatory"
+                          className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x snap-mandatory px-2"
                         >
                           {categorizedMovies[genre.id]?.map((movie) => (
                             <div key={movie.id} className="flex-none w-[200px] snap-start">
-                              <Link
-                                to={`/movie/${movie.id}`}
-                                className="block relative group transform transition-all duration-300 hover:scale-105"
-                              >
-                                <div className="relative rounded-xl overflow-hidden">
-                                  <img
-                                    src={movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : '/No-Poster.png'}
-                                    alt={movie.title}
-                                    className="w-full h-[300px] object-cover"
-                                  />
-                                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    <div className="absolute bottom-0 p-4">
-                                      <h3 className="text-lg font-bold text-white">{movie.title}</h3>
-                                      <p className="text-sm text-gray-300">
-                                        {new Date(movie.release_date).getFullYear()}
-                                      </p>
-                                    </div>
-                                  </div>
-                                </div>
-                              </Link>
+                              <MovieCard movie={movie} />
                             </div>
                           ))}
                         </div>
 
-                        {/* Right Arrow */}
-                        <button
-                          onClick={() => scrollCarousel(genre.id, 'right')}
-                          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all duration-300"
-                          aria-label="Scroll right"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
-                        </button>
+                        <CarouselArrow direction="right" onClick={() => scrollCarousel(genre.id, 'right')} />
 
-                        {/* Gradient fades on both sides */}
-                        <div className="carousel-gradient-left"></div>
-                        <div className="carousel-gradient-right"></div>
+                        <div className="carousel-gradient-left" />
+                        <div className="carousel-gradient-right" />
                       </div>
                     </div>
                   ))}
@@ -383,36 +323,24 @@ const App = () => {
               {/* All Movies Section */}
               <section className="py-20 bg-[#0F0F0F]">
                 <div className="container mx-auto px-4">
-                  <h2 className="text-3xl font-bold text-white mb-12">All Movies</h2>
+                  <h2 className="text-3xl font-heading font-bold text-foreground mb-12">All Movies</h2>
                   {isLoading ? (
-                    <Spinner />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                      {[...Array(8)].map((_, i) => (
+                        <div key={i} className="space-y-3">
+                          <Skeleton className="aspect-[2/3] w-full rounded-xl" />
+                          <Skeleton className="h-4 w-3/4" />
+                          <Skeleton className="h-3 w-1/4" />
+                        </div>
+                      ))}
+                    </div>
                   ) : errorMessage ? (
-                    <p className="text-red-500">{errorMessage}</p>
+                    <p className="text-destructive">{errorMessage}</p>
                   ) : (
                     <>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                         {movieList.map((movie) => (
-                          <Link
-                            key={movie.id}
-                            to={`/movie/${movie.id}`}
-                            className="block relative group transform transition-all duration-300 hover:scale-105"
-                          >
-                            <div className="relative rounded-xl overflow-hidden">
-                              <img
-                                src={movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : '/No-Poster.png'}
-                                alt={movie.title}
-                                className="w-full h-[400px] object-cover"
-                              />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <div className="absolute bottom-0 p-4">
-                                  <h3 className="text-lg font-bold text-white">{movie.title}</h3>
-                                  <p className="text-sm text-gray-300">
-                                    {new Date(movie.release_date).getFullYear()}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          </Link>
+                          <MovieCard key={movie.id} movie={movie} />
                         ))}
                       </div>
                       <div className="mt-12">
@@ -431,7 +359,7 @@ const App = () => {
         } />
         <Route path="/movie/:id" element={<MovieDetail />} />
       </Routes>
-    </HeroUIProvider>
+    </TooltipProvider>
   )
 }
 

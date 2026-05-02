@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import Spinner from './Spinner';
+import { useParams, Link } from 'react-router-dom';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
+import { IconArrowLeft, IconStarFilled, IconClock, IconCalendar, IconMapPin, IconBuildingSkyscraper, IconExternalLink } from '@tabler/icons-react';
 
 const API_BASE_URL = 'https://api.themoviedb.org/3'
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
-// CURL Request
 const API_OPTIONS = {
   method: 'GET',
   headers: {
@@ -51,138 +55,80 @@ const MovieDetail = () => {
 
   if (isLoading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        minHeight: '100vh',
-        width: '100%'
-      }}>
-        <Spinner />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="max-w-4xl w-full mx-auto px-4 space-y-6">
+          <Skeleton className="w-full aspect-video rounded-2xl" />
+          <div className="flex gap-6">
+            <Skeleton className="w-[150px] h-[225px] rounded-xl shrink-0" />
+            <div className="flex-1 space-y-4">
+              <Skeleton className="h-8 w-3/4" />
+              <Skeleton className="h-4 w-1/2" />
+              <Skeleton className="h-4 w-1/3" />
+              <Skeleton className="h-20 w-full" />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (errorMessage) {
-    return <p className='text-red-500'>{errorMessage}</p>;
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="max-w-md mx-auto">
+          <CardContent className="text-center py-8">
+            <p className="text-destructive">{errorMessage}</p>
+            <Button variant="outline" className="mt-4" asChild>
+              <Link to="/">Go back home</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   if (!movie) {
-    return <p>Movie not found.</p>;
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Movie not found.</p>
+      </div>
+    );
   }
 
   const trailer = movie.videos?.results.find(video => video.type === 'Trailer' && video.site === 'YouTube');
   const trailerKey = trailer ? trailer.key : null;
 
-  const backgroundStyle = {
-    backgroundImage: `url(https://image.tmdb.org/t/p/original${movie.backdrop_path})`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
-    backgroundAttachment: 'fixed',
-    minHeight: '100vh',
-    width: '100%',
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    zIndex: -1,
-  };
-
   const renderProviders = (providerType, title) => {
     if (!providers) return null;
 
     // Handle array of provider types
-    if (Array.isArray(providerType)) {
-      const allProviders = providerType.flatMap(type => 
-        providers[type] && Array.isArray(providers[type]) ? providers[type] : []
-      );
-      
-      if (allProviders.length === 0) return null;
+    const allProviders = Array.isArray(providerType)
+      ? providerType.flatMap(type => providers[type] && Array.isArray(providers[type]) ? providers[type] : [])
+      : (providers[providerType] && Array.isArray(providers[providerType]) ? providers[providerType] : []);
 
-      return (
-        <div className='text-white' style={{ 
-          marginBottom: '15px', 
-          display: 'flex', 
-          flexDirection: 'column',
-          gap: '10px'
-        }}>
-          <strong className='text-white' style={{ color: 'white', lineHeight: '1.2em' }}>{title}:</strong> 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-            {allProviders.map(provider => (
-              <a 
-                key={provider.provider_id} 
-                href={providers.link} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className='text-white'
-                style={{
-                  padding: '5px 10px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.3)',
-                  borderRadius: '5px',
-                  textDecoration: 'none',
-                  color: 'white',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '5px',
-                  lineHeight: '1.2em'
-                }}
-              >
+    if (allProviders.length === 0) return null;
+
+    return (
+      <div className="space-y-3">
+        <p className="text-sm font-medium text-muted-foreground">{title}</p>
+        <div className="flex flex-wrap gap-2">
+          {allProviders.map(provider => (
+            <a
+              key={provider.provider_id}
+              href={providers.link}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Badge variant="outline" className="gap-2 h-8 px-3 hover:bg-accent transition-colors cursor-pointer">
                 {provider.logo_path && (
-                  <img 
+                  <img
                     src={`https://image.tmdb.org/t/p/w45${provider.logo_path}`}
                     alt={provider.provider_name}
-                    style={{ height: '20px', width: '20px', borderRadius: '3px' }}
+                    className="h-4 w-4 rounded-sm"
                   />
                 )}
                 <span>{provider.provider_name}</span>
-              </a>
-            ))}
-          </div>
-        </div>
-      );
-    }
-
-    // Handle single provider type
-    if (!providers[providerType] || !Array.isArray(providers[providerType]) || providers[providerType].length === 0) {
-      return null;
-    }
-
-    return (
-      <div className='text-white' style={{ 
-        marginBottom: '15px', 
-        display: 'flex', 
-        flexDirection: 'column',
-        gap: '10px'
-      }}>
-        <strong className='text-white' style={{ color: 'white', lineHeight: '1.2em' }}>{title}:</strong> 
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-          {providers[providerType].map(provider => (
-            <a 
-              key={provider.provider_id} 
-              href={providers.link} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className='text-white'
-              style={{
-                padding: '5px 10px',
-                backgroundColor: 'rgba(255, 255, 255, 0.3)',
-                borderRadius: '5px',
-                textDecoration: 'none',
-                color: 'white',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '5px',
-                lineHeight: '1.2em'
-              }}
-            >
-              {provider.logo_path && (
-                <img 
-                  src={`https://image.tmdb.org/t/p/w45${provider.logo_path}`}
-                  alt={provider.provider_name}
-                  style={{ height: '20px', width: '20px', borderRadius: '3px' }}
-                />
-              )}
-              <span>{provider.provider_name}</span>
+              </Badge>
             </a>
           ))}
         </div>
@@ -191,202 +137,174 @@ const MovieDetail = () => {
   };
 
   return (
-    <main>
-      <div style={backgroundStyle} />
-      <div className='pattern' />
-      <div className='wrapper' style={{ position: 'relative', zIndex: 1, padding: '0 20px' }}>
-        <header style={{ textAlign: 'center', marginBottom: '20px', paddingTop: '20px' }}>
-          <img src="/logo.svg" alt="Logo" style={{ width: '80px', marginBottom: '10px' }} />
-        </header>
+    <main className="min-h-screen bg-background relative">
+      {/* Background */}
+      {movie.backdrop_path && (
+        <div className="fixed inset-0 z-0">
+          <img
+            src={`https://image.tmdb.org/t/p/original${movie.backdrop_path}`}
+            alt=""
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-background/85 backdrop-blur-sm" />
+        </div>
+      )}
 
-        <div className="max-w-7xl mx-auto bg-black/80 backdrop-blur-sm border border-white/10 rounded-xl shadow-lg">
-          <div className="p-8">
-            <section className='movie-card'>
-              <div style={{ display: 'flex', gap: '20px', flexDirection: 'column' }}>
-                {trailerKey ? (
-                  <div style={{ position: 'relative', paddingTop: '56.25%', marginBottom: '20px' }}>
-                    <iframe
-                      src={`https://www.youtube.com/embed/${trailerKey}`}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', borderRadius: '8px' }}
-                      title="Movie Trailer"
-                    ></iframe>
-                  </div>
-                ) : (
-                  <div style={{
-                    textAlign: 'center',
-                    marginBottom: '20px',
-                    width: '100%',
-                    height: '400px',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    backgroundColor: '#343A40',
-                    borderRadius: '8px',
-                    color: 'white',
-                    fontSize: '1.5em',
-                    fontWeight: 'bold'
-                  }}>
-                    Poster Not Available
+      <div className="relative z-10 max-w-5xl mx-auto px-4 py-8">
+        {/* Back button */}
+        <Button variant="ghost" size="sm" className="mb-6 text-muted-foreground hover:text-foreground" asChild>
+          <Link to="/">
+            <IconArrowLeft className="size-4 mr-1" />
+            Back
+          </Link>
+        </Button>
+
+        <Card className="bg-card/80 backdrop-blur-md border-white/10 overflow-hidden">
+          <CardContent className="p-0">
+            {/* Trailer / Hero */}
+            {trailerKey ? (
+              <div className="relative w-full aspect-video">
+                <iframe
+                  src={`https://www.youtube.com/embed/${trailerKey}`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="absolute inset-0 w-full h-full"
+                  title="Movie Trailer"
+                />
+              </div>
+            ) : movie.backdrop_path ? (
+              <div className="relative w-full aspect-video">
+                <img
+                  src={`https://image.tmdb.org/t/p/original${movie.backdrop_path}`}
+                  alt={movie.title}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
+              </div>
+            ) : (
+              <div className="w-full aspect-video bg-muted flex items-center justify-center">
+                <p className="text-muted-foreground text-lg font-medium">No Media Available</p>
+              </div>
+            )}
+
+            {/* Content */}
+            <div className="p-6 md:p-8 space-y-6">
+              <div className="flex flex-col md:flex-row gap-6">
+                {/* Poster */}
+                {movie.poster_path && (
+                  <div className="shrink-0 mx-auto md:mx-0">
+                    <img
+                      src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
+                      alt={movie.title}
+                      className="w-[160px] h-[240px] object-cover rounded-xl ring-1 ring-white/10"
+                    />
                   </div>
                 )}
 
-                <div style={{ 
-                  display: 'flex', 
-                  gap: '20px', 
-                  alignItems: 'flex-start',
-                  flexDirection: window.innerWidth <= 768 ? 'column' : 'row'
-                }}>
-                  {movie.poster_path && (
-                    <img
-                      src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
-                      alt={movie.title}
-                      style={{ 
-                        borderRadius: '8px', 
-                        flexShrink: 0, 
-                        width: window.innerWidth <= 768 ? '100%' : '150px', 
-                        height: window.innerWidth <= 768 ? 'auto' : '225px', 
-                        objectFit: 'cover',
-                        maxWidth: window.innerWidth <= 768 ? '200px' : '150px',
-                        margin: window.innerWidth <= 768 ? '0 auto' : '0'
-                      }}
-                    />
+                {/* Info */}
+                <div className="flex-1 space-y-4">
+                  <h1 className="text-gradient text-3xl md:text-4xl font-bold text-left max-w-none mx-0 leading-tight">
+                    {movie.title}
+                  </h1>
+
+                  {movie.tagline && (
+                    <p className="text-muted-foreground italic text-sm">{movie.tagline}</p>
                   )}
-                  <div style={{ flexGrow: 1 }}>
-                    <h1 className='text-gradient' style={{ 
-                      fontSize: window.innerWidth <= 768 ? '1.8em' : '2.5em', 
-                      marginBottom: '10px', 
-                      color: 'white', 
-                      textAlign: 'left', 
-                      margin: '0 0 10px 0', 
-                      padding: '0' 
-                    }}>{movie.title}</h1>
 
-                    {movie.tagline && (
-                      <p style={{ 
-                        color: 'white', 
-                        marginBottom: '15px', 
-                        fontStyle: 'italic', 
-                        textAlign: 'left', 
-                        margin: '0 0 15px 0', 
-                        padding: '0',
-                        fontSize: window.innerWidth <= 768 ? '0.9em' : '1em'
-                      }}>
-                        {movie.tagline}
-                      </p>
+                  {/* Meta row */}
+                  <div className="flex flex-wrap items-center gap-3">
+                    {movie.vote_average > 0 && (
+                      <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30 gap-1">
+                        <IconStarFilled className="size-3" />
+                        {movie.vote_average.toFixed(1)}
+                      </Badge>
                     )}
-
-                    <div style={{ 
-                      marginBottom: '15px', 
-                      textAlign: 'left', 
-                      color: 'white',
-                      fontSize: window.innerWidth <= 768 ? '0.9em' : '1em'
-                    }}>
-                      <strong>Released:</strong> {movie.release_date || 'Not available'}
-                    </div>
-                    <div style={{ 
-                      marginBottom: '15px', 
-                      textAlign: 'left', 
-                      color: 'white',
-                      fontSize: window.innerWidth <= 768 ? '0.9em' : '1em'
-                    }}>
-                      <strong>Duration:</strong> {movie.runtime ? `${movie.runtime} min` : 'Not available'}
-                    </div>
-                    <div style={{ 
-                      marginBottom: '15px', 
-                      textAlign: 'left', 
-                      color: 'white',
-                      fontSize: window.innerWidth <= 768 ? '0.9em' : '1em'
-                    }}>
-                      <strong>Genre:</strong> {movie.genres?.length > 0 ? movie.genres.map(genre => genre.name).join(', ') : 'Not available'}
-                    </div>
-                    <div style={{ 
-                      marginBottom: '15px', 
-                      textAlign: 'left', 
-                      color: 'white',
-                      fontSize: window.innerWidth <= 768 ? '0.9em' : '1em'
-                    }}>
-                      <strong>Country:</strong> {movie.production_countries?.length > 0 ? movie.production_countries.map(country => country.name).join(', ') : 'Not available'}
-                    </div>
-                    <div style={{ 
-                      marginBottom: '15px', 
-                      textAlign: 'left', 
-                      color: 'white',
-                      fontSize: window.innerWidth <= 768 ? '0.9em' : '1em'
-                    }}>
-                      <strong>Production:</strong> {movie.production_companies?.length > 0 ? movie.production_companies.map(company => company.name).join(', ') : 'Not available'}
-                    </div>
-
-                    {movie.overview && (
-                      <p style={{ 
-                        lineHeight: '1.6', 
-                        color: 'white', 
-                        marginBottom: '20px', 
-                        textAlign: 'left', 
-                        margin: '0 0 20px 0', 
-                        padding: '0',
-                        fontSize: window.innerWidth <= 768 ? '0.9em' : '1em'
-                      }}>
-                        {movie.overview}
-                      </p>
+                    {movie.release_date && (
+                      <Badge variant="outline" className="gap-1">
+                        <IconCalendar className="size-3" />
+                        {movie.release_date}
+                      </Badge>
                     )}
+                    {movie.runtime > 0 && (
+                      <Badge variant="outline" className="gap-1">
+                        <IconClock className="size-3" />
+                        {movie.runtime} min
+                      </Badge>
+                    )}
+                  </div>
 
-                    {/* Render Watch Providers */}
-                    {renderProviders('flatrate', 'Stream On')}
-                    {renderProviders(['buy', 'rent'], 'Buy/Rent On')}
-
-                    <div style={{ 
-                      marginTop: '20px', 
-                      display: 'flex', 
-                      gap: '10px', 
-                      justifyContent: 'flex-start',
-                      flexDirection: window.innerWidth <= 768 ? 'column' : 'row'
-                    }}>
-                      {providers && providers.link ? (
-                        <a 
-                          href={providers.link} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          style={{
-                            padding: '10px 20px',
-                            backgroundColor: '#007bff',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '5px',
-                            cursor: 'pointer',
-                            textDecoration: 'none',
-                            display: 'inline-block',
-                            textAlign: 'center',
-                            width: window.innerWidth <= 768 ? '100%' : 'auto'
-                          }}
-                        >
-                          Watch now
-                        </a>
-                      ) : (
-                        <button 
-                          style={{
-                            padding: '10px 20px',
-                            backgroundColor: '#007bff',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '5px',
-                            cursor: 'not-allowed',
-                            opacity: 0.6,
-                            width: window.innerWidth <= 768 ? '100%' : 'auto'
-                          }}
-                          disabled
-                        >
-                          Watch now (No providers)
-                        </button>
-                      )}
+                  {/* Genres */}
+                  {movie.genres?.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {movie.genres.map(genre => (
+                        <Badge key={genre.id} variant="secondary">
+                          {genre.name}
+                        </Badge>
+                      ))}
                     </div>
+                  )}
+
+                  {/* Details */}
+                  <div className="space-y-2 text-sm">
+                    {movie.production_countries?.length > 0 && (
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <IconMapPin className="size-4 shrink-0" />
+                        <span>{movie.production_countries.map(c => c.name).join(', ')}</span>
+                      </div>
+                    )}
+                    {movie.production_companies?.length > 0 && (
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <IconBuildingSkyscraper className="size-4 shrink-0" />
+                        <span>{movie.production_companies.map(c => c.name).join(', ')}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
-            </section>
-          </div>
-        </div>
+
+              {/* Overview */}
+              {movie.overview && (
+                <>
+                  <Separator className="bg-white/10" />
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-medium text-muted-foreground">Overview</h3>
+                    <p className="text-foreground leading-relaxed">{movie.overview}</p>
+                  </div>
+                </>
+              )}
+
+              {/* Watch Providers */}
+              {(providers?.flatrate || providers?.buy || providers?.rent) && (
+                <>
+                  <Separator className="bg-white/10" />
+                  <div className="space-y-4">
+                    {renderProviders('flatrate', 'Stream On')}
+                    {renderProviders(['buy', 'rent'], 'Buy / Rent On')}
+                  </div>
+                </>
+              )}
+
+              {/* CTA */}
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                {providers && providers.link ? (
+                  <Button size="lg" asChild>
+                    <a href={providers.link} target="_blank" rel="noopener noreferrer">
+                      <IconExternalLink className="size-4 mr-2" />
+                      Watch Now
+                    </a>
+                  </Button>
+                ) : (
+                  <Button size="lg" disabled className="opacity-50">
+                    Watch Now (No providers)
+                  </Button>
+                )}
+                <Button variant="outline" size="lg" asChild>
+                  <Link to="/">Back to Browse</Link>
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </main>
   );
