@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { IconSearch } from '@tabler/icons-react';
 
-const Search = ({ searchItem, setSearchItem }) => {
+const Search = ({ searchItem, setSearchItem, compact = false }) => {
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -60,19 +60,23 @@ const Search = ({ searchItem, setSearchItem }) => {
   }, []);
 
   return (
-    <div className="relative" ref={dropdownRef}>
-      <div className="relative">
-        <IconSearch className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+    <div className={`relative ${compact ? 'w-full max-w-[300px]' : 'w-full'}`} ref={dropdownRef}>
+      <div className="relative group">
+        <IconSearch className={`absolute top-1/2 -translate-y-1/2 text-muted-foreground z-10 transition-colors group-focus-within:text-primary ${compact ? 'left-3 h-4 w-4' : 'left-4 h-5 w-5'}`} />
         <Input
           type="text"
-          placeholder="Search through thousands of movies"
+          placeholder="Search movies..."
           value={searchItem}
           onChange={(e) => {
             setSearchItem(e.target.value);
             setShowDropdown(true);
           }}
           onFocus={() => setShowDropdown(true)}
-          className="w-full h-14 pl-12 pr-4 bg-white/5 backdrop-blur-md border-white/10 rounded-2xl text-white placeholder:text-muted-foreground text-base focus-visible:ring-primary/50"
+          className={`w-full bg-white/5 backdrop-blur-md border-white/10 text-white placeholder:text-muted-foreground focus-visible:ring-primary/50 focus-visible:bg-white/10 transition-all ${
+            compact 
+              ? 'h-10 pl-10 pr-4 rounded-full text-sm' 
+              : 'h-14 pl-12 pr-4 rounded-2xl text-base'
+          }`}
         />
       </div>
 

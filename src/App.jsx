@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { IconChevronLeft, IconChevronRight, IconStarFilled } from '@tabler/icons-react';
-import Search from './components/Search'
+import Navbar from './components/Navbar';
+import HeroCarousel from './components/HeroCarousel';
 import Spinner from './components/Spinner'
 import MovieCard from './components/MovieCard';
 import MovieDetail from './components/MovieDetail';
@@ -183,55 +184,16 @@ const App = () => {
         <Route path="/" element={
           <main className="min-h-screen bg-background">
             <div className="relative">
-              {/* Hero Section */}
-              <div className="relative h-screen flex items-center justify-center overflow-hidden">
-                {/* Background */}
-                <div className="absolute inset-0 z-0">
-                  <div className="absolute inset-0 bg-black/60 z-10" />
-                  <img
-                    src="/bg-purple.png"
-                    alt="Background"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black opacity-70" />
-                </div>
-
-                {/* Hero Content */}
-                <div className="container mx-auto px-4 z-20 relative">
-                  <div className="max-w-4xl mx-auto text-center">
-                    <div className="w-32 h-32 mb-8 mx-auto">
-                      <img
-                        src="/logo.svg"
-                        alt="Logo"
-                        className="w-full h-full"
-                      />
-                    </div>
-                    <p className="text-foreground text-center text-xl font-heading font-semibold tracking-wide mb-8">Movo</p>
-
-                    <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-8 leading-tight max-w-none">
-                      Where Great <span className="text-gradient">Movies</span> Start
-                    </h1>
-
-                    <p className="text-xl text-muted-foreground mb-12">
-                      Discover and stream your favorite movies with ease
-                    </p>
-                    <div className="max-w-2xl mx-auto">
-                      <Search searchItem={searchItem} setSearchItem={setSearchItem} />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Bottom Fade */}
-                <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-[#0F0F0F] z-10" />
-              </div>
+              <Navbar searchItem={searchItem} setSearchItem={setSearchItem} />
+              <HeroCarousel trendingMovies={trendingMovies} genres={genres} />
 
               {/* Trending Movies Section */}
               {trendingMovies.length > 0 && (
                 <section className="py-20 bg-[#0F0F0F]">
                   <div className="container mx-auto px-4">
-                    <div className="flex items-center gap-3 mb-12">
-                      <h2 className="text-3xl font-heading font-bold text-foreground">Top 10 Trending</h2>
-                      <Badge className="bg-primary/20 text-primary border-primary/30">Today</Badge>
+                    <div className="flex items-center gap-3 mb-8">
+                      <div className="w-1 h-6 bg-[#E50914] rounded-sm"></div>
+                      <h2 className="text-2xl font-bold text-white tracking-wide">TOP 10 Today</h2>
                     </div>
                     <div className="relative">
                       <CarouselArrow direction="left" onClick={() => scrollCarousel('trending', 'left')} />
@@ -239,34 +201,40 @@ const App = () => {
                       {/* Trending Carousel */}
                       <div
                         ref={el => carouselRefs.current['trending'] = el}
-                        className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x snap-mandatory px-2"
+                        className="flex overflow-x-auto gap-5 pb-4 scrollbar-hide snap-x snap-mandatory px-1"
                       >
                         {trendingMovies.map((movie, index) => (
-                          <div key={movie.id} className="flex-none w-[260px] snap-start">
-                            <Link
-                              to={`/movie/${movie.id}`}
-                              className="block relative group cursor-pointer transform transition-all duration-300 hover:scale-105"
-                            >
-                              <div className="absolute left-2 top-2 w-10 h-10 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold text-lg z-10 ring-2 ring-primary/30">
-                                {index + 1}
-                              </div>
-                              <Badge className="absolute right-2 top-2 bg-black/60 backdrop-blur-sm text-yellow-400 border-white/10 gap-1 z-10">
-                                <IconStarFilled className="size-3" />
-                                {movie.vote_average?.toFixed(1)}
-                              </Badge>
-                              <div className="relative rounded-xl overflow-hidden mt-6 transform-gpu [backface-visibility:hidden]">
+                          <div key={movie.id} className="flex-none w-[200px] snap-start group cursor-pointer">
+                            <Link to={`/movie/${movie.id}`} className="block">
+                              <div className="relative rounded-lg overflow-hidden border border-white/5 bg-white/5 aspect-[2/3] shadow-lg">
+                                {/* Red TOP Ribbon */}
+                                <div 
+                                  className="absolute top-0 left-0 bg-[#E50914] text-white w-9 pb-2 z-10 flex flex-col items-center pt-1 shadow-md" 
+                                  style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 50% 85%, 0 100%)' }}
+                                >
+                                  <span className="text-[10px] font-bold leading-none tracking-wider mb-[2px]">TOP</span>
+                                  <span className="text-sm font-black leading-none">{String(index + 1).padStart(2, '0')}</span>
+                                </div>
+                                
                                 <img
                                   src={movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : '/No-Poster.png'}
                                   alt={movie.title}
-                                  className="w-full h-[340px] object-cover transition-transform duration-500 group-hover:scale-110 transform-gpu [backface-visibility:hidden]"
+                                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                  <div className="absolute bottom-0 p-4">
-                                    <h3 className="text-lg font-bold text-foreground">{movie.title}</h3>
-                                    <p className="text-sm text-muted-foreground mt-1">
-                                      {movie.release_date ? new Date(movie.release_date).getFullYear() : 'N/A'}
-                                    </p>
-                                  </div>
+                              </div>
+                              
+                              {/* Movie Details Below Poster */}
+                              <div className="mt-4 space-y-1">
+                                <h3 className="text-white font-medium text-sm truncate group-hover:text-white/80 transition-colors">{movie.title || movie.original_title}</h3>
+                                <div className="flex items-center gap-2 text-[11px] text-gray-400 font-medium">
+                                  <span className="flex items-center gap-[2px] text-[#E50914]">
+                                    <IconStarFilled className="w-3 h-3" />
+                                    {movie.vote_average?.toFixed(1) || 'N/A'}
+                                  </span>
+                                  <span className="text-gray-600">&bull;</span>
+                                  <span>{movie.release_date?.substring(0, 4) || 'N/A'}</span>
+                                  <span className="text-gray-600">&bull;</span>
+                                  <span>Movie</span>
                                 </div>
                               </div>
                             </Link>
