@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { getTrendingMovies, updateSearchCount } from './supabase';
 import { useDebounce } from 'react-use';
 import { Routes, Route, Link } from 'react-router-dom';
@@ -11,6 +11,7 @@ import Navbar from './components/Navbar';
 import HeroCarousel from './components/HeroCarousel';
 import Spinner from './components/Spinner'
 import MovieCard from './components/MovieCard';
+import TrendingCard from './components/TrendingCard';
 import MovieDetail from './components/MovieDetail';
 import Pagination from './components/Pagination';
 
@@ -35,6 +36,8 @@ const App = () => {
   const [movieList, setMovieList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [trendingMovies, setTrendingMovies] = useState([]);
+  const [trendingItems, setTrendingItems] = useState([]);
+  const [trendingType, setTrendingType] = useState('movie');
   const [debouncedSearchItem, setDebouncedSearchItem] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -42,6 +45,9 @@ const App = () => {
   const [categorizedMovies, setCategorizedMovies] = useState({});
 
   const carouselRefs = useRef({});
+  const movieBtnRef = useRef(null);
+  const tvBtnRef = useRef(null);
+  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
 
   const scrollCarousel = (genreId, direction) => {
     const carousel = carouselRefs.current[genreId];
@@ -108,6 +114,19 @@ const App = () => {
     }
   }
 
+  const loadTrendingItems = async (type) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/trending/${type}/day`, API_OPTIONS);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch trending ${type}`);
+      }
+      const data = await response.json();
+      setTrendingItems(data.results);
+    } catch (error) {
+      console.error(`Error fetching trending ${type}: ${error}`);
+    }
+  }
+
   const fetchGenres = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/genre/movie/list`, API_OPTIONS);
@@ -156,6 +175,10 @@ const App = () => {
   }, [])
 
   useEffect(() => {
+    loadTrendingItems(trendingType);
+  }, [trendingType]);
+
+  useEffect(() => {
     fetchGenres();
   }, []);
 
@@ -165,8 +188,30 @@ const App = () => {
     }
   }, [genres]);
 
+  useEffect(() => {
+    const updateIndicator = () => {
+      const activeBtn = trendingType === 'movie' ? movieBtnRef.current : tvBtnRef.current;
+      if (activeBtn) {
+        setIndicatorStyle({
+          left: activeBtn.offsetLeft,
+          width: activeBtn.offsetWidth,
+        });
+      }
+    };
+
+    updateIndicator();
+    // Tiny timeout just for initial mount font loading
+    const timeoutId = setTimeout(updateIndicator, 100);
+    window.addEventListener('resize', updateIndicator);
+
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('resize', updateIndicator);
+    };
+  }, [trendingType]);
+
   // Carousel arrow button component
-  const CarouselArrow = ({ direction, onClick }) => (
+  const CarouselArrow = React.useCallback(({ direction, onClick }) => (
     <Button
       variant="ghost"
       size="icon"
@@ -176,7 +221,111 @@ const App = () => {
     >
       {direction === 'left' ? <IconChevronLeft className="size-5" /> : <IconChevronRight className="size-5" />}
     </Button>
-  );
+  ), []);
+
+  const top10Section = useMemo(() => {
+    if (trendingMovies.length === 0) return null;
+    return (
+      <section className="py-20 bg-[#0F0F0F]">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-1 h-6 bg-[#E50914] rounded-sm"></div>
+            <h2 className="text-2xl font-bold text-white tracking-wide">TOP 10 Today</h2>
+          </div>
+          <div className="relative">
+            <CarouselArrow direction="left" onClick={() => scrollCarousel('trending', 'left')} />
+
+            {/* Trending Carousel */}
+            <div
+              ref={el => carouselRefs.current['trending'] = el}
+              className="flex overflow-x-auto gap-5 pb-4 scrollbar-hide snap-x snap-mandatory px-1"
+            >
+              {trendingMovies.map((movie, index) => (
+                <div key={movie.id} className="flex-none w-[200px] snap-start group cursor-pointer">
+                  <Link to={`/movie/${movie.id}`} className="block">
+                    <div className="relative rounded-lg overflow-hidden border border-white/5 bg-white/5 aspect-[2/3] shadow-lg">
+                      {/* Red TOP Ribbon */}
+                      <div
+                        className="absolute top-0 left-0 bg-[#E50914] text-white w-9 pb-2 z-10 flex flex-col items-center pt-1 shadow-md"
+                        style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 50% 85%, 0 100%)' }}
+                      >
+                        <span className="text-[10px] font-bold leading-none tracking-wider mb-[2px]">TOP</span>
+                        <span className="text-sm font-black leading-none">{String(index + 1).padStart(2, '0')}</span>
+                      </div>
+
+                      <img
+                        src={movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : '/No-Poster.png'}
+                        alt={movie.title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    </div>
+
+                    {/* Movie Details Below Poster */}
+                    <div className="mt-4 space-y-1">
+                      <h3 className="text-white font-medium text-sm truncate group-hover:text-white/80 transition-colors">{movie.title || movie.original_title}</h3>
+                      <div className="flex items-center gap-2 text-[11px] text-gray-400 font-medium">
+                        <span className="flex items-center gap-[2px] text-[#E50914]">
+                          <IconStarFilled className="w-3 h-3" />
+                          {movie.vote_average?.toFixed(1) || 'N/A'}
+                        </span>
+                        <span className="text-gray-600">&bull;</span>
+                        <span>{movie.release_date?.substring(0, 4) || 'N/A'}</span>
+                        <span className="text-gray-600">&bull;</span>
+                        <span>Movie</span>
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+              ))}
+            </div>
+
+            <CarouselArrow direction="right" onClick={() => scrollCarousel('trending', 'right')} />
+
+            <div className="carousel-gradient-left" />
+            <div className="carousel-gradient-right" />
+          </div>
+        </div>
+      </section>
+    );
+  }, [trendingMovies, scrollCarousel]);
+
+  const genresSection = useMemo(() => (
+    <section className="py-20 bg-[#0F0F0F]">
+      <div className="container mx-auto px-4">
+        <h2 className="text-3xl font-heading font-bold text-foreground mb-12">Browse by Genre</h2>
+
+        {genres.map((genre) => (
+          <div key={genre.id} className="mb-14">
+            <div className="flex items-center gap-3 mb-6">
+              <h3 className="text-xl font-heading font-bold text-foreground">{genre.name}</h3>
+              <Badge variant="outline" className="text-xs">
+                {categorizedMovies[genre.id]?.length || 0} movies
+              </Badge>
+            </div>
+            <div className="relative">
+              <CarouselArrow direction="left" onClick={() => scrollCarousel(genre.id, 'left')} />
+
+              <div
+                ref={el => carouselRefs.current[genre.id] = el}
+                className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x snap-mandatory px-2"
+              >
+                {categorizedMovies[genre.id]?.map((movie) => (
+                  <div key={movie.id} className="flex-none w-[200px] snap-start">
+                    <MovieCard movie={movie} />
+                  </div>
+                ))}
+              </div>
+
+              <CarouselArrow direction="right" onClick={() => scrollCarousel(genre.id, 'right')} />
+
+              <div className="carousel-gradient-left" />
+              <div className="carousel-gradient-right" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  ), [genres, categorizedMovies, scrollCarousel]);
 
   return (
     <TooltipProvider>
@@ -188,105 +337,76 @@ const App = () => {
               <HeroCarousel trendingMovies={trendingMovies} genres={genres} />
 
               {/* Trending Movies Section */}
-              {trendingMovies.length > 0 && (
-                <section className="py-20 bg-[#0F0F0F]">
-                  <div className="container mx-auto px-4">
-                    <div className="flex items-center gap-3 mb-8">
-                      <div className="w-1 h-6 bg-[#E50914] rounded-sm"></div>
-                      <h2 className="text-2xl font-bold text-white tracking-wide">TOP 10 Today</h2>
-                    </div>
-                    <div className="relative">
-                      <CarouselArrow direction="left" onClick={() => scrollCarousel('trending', 'left')} />
+              {top10Section}
 
-                      {/* Trending Carousel */}
-                      <div
-                        ref={el => carouselRefs.current['trending'] = el}
-                        className="flex overflow-x-auto gap-5 pb-4 scrollbar-hide snap-x snap-mandatory px-1"
-                      >
-                        {trendingMovies.map((movie, index) => (
-                          <div key={movie.id} className="flex-none w-[200px] snap-start group cursor-pointer">
-                            <Link to={`/movie/${movie.id}`} className="block">
-                              <div className="relative rounded-lg overflow-hidden border border-white/5 bg-white/5 aspect-[2/3] shadow-lg">
-                                {/* Red TOP Ribbon */}
-                                <div 
-                                  className="absolute top-0 left-0 bg-[#E50914] text-white w-9 pb-2 z-10 flex flex-col items-center pt-1 shadow-md" 
-                                  style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 50% 85%, 0 100%)' }}
-                                >
-                                  <span className="text-[10px] font-bold leading-none tracking-wider mb-[2px]">TOP</span>
-                                  <span className="text-sm font-black leading-none">{String(index + 1).padStart(2, '0')}</span>
-                                </div>
-                                
-                                <img
-                                  src={movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : '/No-Poster.png'}
-                                  alt={movie.title}
-                                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                />
-                              </div>
-                              
-                              {/* Movie Details Below Poster */}
-                              <div className="mt-4 space-y-1">
-                                <h3 className="text-white font-medium text-sm truncate group-hover:text-white/80 transition-colors">{movie.title || movie.original_title}</h3>
-                                <div className="flex items-center gap-2 text-[11px] text-gray-400 font-medium">
-                                  <span className="flex items-center gap-[2px] text-[#E50914]">
-                                    <IconStarFilled className="w-3 h-3" />
-                                    {movie.vote_average?.toFixed(1) || 'N/A'}
-                                  </span>
-                                  <span className="text-gray-600">&bull;</span>
-                                  <span>{movie.release_date?.substring(0, 4) || 'N/A'}</span>
-                                  <span className="text-gray-600">&bull;</span>
-                                  <span>Movie</span>
-                                </div>
-                              </div>
-                            </Link>
-                          </div>
-                        ))}
-                      </div>
-
-                      <CarouselArrow direction="right" onClick={() => scrollCarousel('trending', 'right')} />
-
-                      <div className="carousel-gradient-left" />
-                      <div className="carousel-gradient-right" />
-                    </div>
-                  </div>
-                </section>
-              )}
-
-              {/* Genre Categories Section */}
+              {/* Trending Today Section with Toggle */}
               <section className="py-20 bg-[#0F0F0F]">
                 <div className="container mx-auto px-4">
-                  <h2 className="text-3xl font-heading font-bold text-foreground mb-12">Browse by Genre</h2>
-
-                  {genres.map((genre) => (
-                    <div key={genre.id} className="mb-14">
-                      <div className="flex items-center gap-3 mb-6">
-                        <h3 className="text-xl font-heading font-bold text-foreground">{genre.name}</h3>
-                        <Badge variant="outline" className="text-xs">
-                          {categorizedMovies[genre.id]?.length || 0} movies
-                        </Badge>
-                      </div>
-                      <div className="relative">
-                        <CarouselArrow direction="left" onClick={() => scrollCarousel(genre.id, 'left')} />
-
-                        <div
-                          ref={el => carouselRefs.current[genre.id] = el}
-                          className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x snap-mandatory px-2"
-                        >
-                          {categorizedMovies[genre.id]?.map((movie) => (
-                            <div key={movie.id} className="flex-none w-[200px] snap-start">
-                              <MovieCard movie={movie} />
-                            </div>
-                          ))}
-                        </div>
-
-                        <CarouselArrow direction="right" onClick={() => scrollCarousel(genre.id, 'right')} />
-
-                        <div className="carousel-gradient-left" />
-                        <div className="carousel-gradient-right" />
-                      </div>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+                    <div className="flex items-center gap-3">
+                      <div className="w-1 h-6 bg-[#E50914] rounded-sm"></div>
+                      <h2 className="text-2xl font-bold text-white tracking-wide">Trending Today</h2>
                     </div>
-                  ))}
+
+                    {/* Toggle Button Group */}
+                    <div className="relative flex items-center gap-6 border-b border-white/10 pb-2">
+                      <button
+                        ref={movieBtnRef}
+                        onClick={(e) => {
+                          setTrendingType('movie');
+                          setIndicatorStyle({ left: e.currentTarget.offsetLeft, width: e.currentTarget.offsetWidth });
+                        }}
+                        className={`text-sm md:text-base font-bold transition-colors duration-300 ${trendingType === 'movie' ? 'text-white' : 'text-gray-500 hover:text-white'
+                          }`}
+                      >
+                        Movies
+                      </button>
+                      <button
+                        ref={tvBtnRef}
+                        onClick={(e) => {
+                          setTrendingType('tv');
+                          setIndicatorStyle({ left: e.currentTarget.offsetLeft, width: e.currentTarget.offsetWidth });
+                        }}
+                        className={`text-sm md:text-base font-bold transition-colors duration-300 ${trendingType === 'tv' ? 'text-white' : 'text-gray-500 hover:text-white'
+                          }`}
+                      >
+                        Series
+                      </button>
+
+                      {/* Sliding Indicator */}
+                      <div
+                        className="absolute left-0 -bottom-[1px] h-[2px] bg-[#E50914] transition-all duration-300 ease-in-out"
+                        style={{
+                          transform: `translateX(${indicatorStyle.left}px)`,
+                          width: `${indicatorStyle.width}px`
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="relative">
+                    <CarouselArrow direction="left" onClick={() => scrollCarousel('trendingItems', 'left')} />
+
+                    <div
+                      ref={el => carouselRefs.current['trendingItems'] = el}
+                      className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x snap-mandatory px-2"
+                    >
+                      {trendingItems.map((item) => (
+                        <div key={item.id} className="flex-none w-[280px] md:w-[320px] lg:w-[380px] snap-start">
+                          <TrendingCard item={item} type={trendingType} />
+                        </div>
+                      ))}
+                    </div>
+
+                    <CarouselArrow direction="right" onClick={() => scrollCarousel('trendingItems', 'right')} />
+
+                    <div className="carousel-gradient-left" />
+                    <div className="carousel-gradient-right" />
+                  </div>
                 </div>
               </section>
+
+              {genresSection}
 
               {/* All Movies Section */}
               <section className="py-20 bg-[#0F0F0F]">
