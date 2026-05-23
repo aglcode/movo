@@ -6,7 +6,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { IconChevronLeft, IconChevronRight, IconStarFilled } from '@tabler/icons-react';
+import { IconChevronLeft, IconChevronRight, IconStarFilled, IconChevronDown } from '@tabler/icons-react';
 import Navbar from './components/Navbar';
 import HeroCarousel from './components/HeroCarousel';
 import Spinner from './components/Spinner'
@@ -43,10 +43,24 @@ const App = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [genres, setGenres] = useState([]);
   const [categorizedMovies, setCategorizedMovies] = useState({});
+  const [selectedProvider, setSelectedProvider] = useState({ id: 8, name: 'Netflix', logo: 'https://image.tmdb.org/t/p/w45/pbpMk2JmcoNnQwx5JGpXngfoWtp.jpg' });
+  const [providerMovies, setProviderMovies] = useState([]);
+  const [showProviderDropdown, setShowProviderDropdown] = useState(false);
+
+  const STREAMING_PROVIDERS = [
+    { id: 8, name: 'Netflix', logo: 'https://image.tmdb.org/t/p/w45/pbpMk2JmcoNnQwx5JGpXngfoWtp.jpg' },
+    { id: 9, name: 'Prime Video', logo: 'https://image.tmdb.org/t/p/w45/pvske1MyAoymrs5bBO8s6DmCo2y.jpg' },
+    { id: 1899, name: 'Max', logo: 'https://image.tmdb.org/t/p/w45/6Q3YKUNA4UkZOYSfAoFyjjDHkYk.jpg' },
+    { id: 337, name: 'Disney+', logo: 'https://image.tmdb.org/t/p/w45/97yvRBw1GzX7fXprcF80er19ot.jpg' },
+    { id: 350, name: 'Apple TV+', logo: 'https://image.tmdb.org/t/p/w45/6uhKBfmtzFqOcLousHwZuzcrScK.jpg' },
+    { id: 531, name: 'Paramount+', logo: 'https://image.tmdb.org/t/p/w45/xbhHHa1YgtpwhC8lb1NQ3ACVcZd.jpg' },
+    { id: 15, name: 'Hulu', logo: 'https://image.tmdb.org/t/p/w45/zxrVdFjIjLqkfnwyghnfywTn3Lh.jpg' },
+  ];
 
   const carouselRefs = useRef({});
   const movieBtnRef = useRef(null);
   const tvBtnRef = useRef(null);
+  const providerDropdownRef = useRef(null);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
 
   const scrollCarousel = (genreId, direction) => {
@@ -188,6 +202,38 @@ const App = () => {
     }
   }, [genres]);
 
+  const fetchProviderMovies = async (providerId) => {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/discover/movie?with_watch_providers=${providerId}&watch_region=US&sort_by=popularity.desc`,
+        API_OPTIONS
+      );
+      if (!response.ok) {
+        throw new Error('Failed to fetch provider movies');
+      }
+      const data = await response.json();
+      setProviderMovies(data.results || []);
+    } catch (error) {
+      console.error(`Error fetching provider movies: ${error}`);
+      setProviderMovies([]);
+    }
+  };
+
+  useEffect(() => {
+    fetchProviderMovies(selectedProvider.id);
+  }, [selectedProvider]);
+
+  // Close provider dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (providerDropdownRef.current && !providerDropdownRef.current.contains(event.target)) {
+        setShowProviderDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   useEffect(() => {
     const updateIndicator = () => {
       const activeBtn = trendingType === 'movie' ? movieBtnRef.current : tvBtnRef.current;
@@ -241,7 +287,7 @@ const App = () => {
               className="flex overflow-x-auto gap-5 pb-4 scrollbar-hide snap-x snap-mandatory px-1"
             >
               {trendingMovies.map((movie, index) => (
-                <div key={movie.id} className="flex-none w-[200px] snap-start group cursor-pointer">
+                <div key={movie.id} className="flex-none w-[140px] sm:w-[200px] snap-start group cursor-pointer">
                   <Link to={`/movie/${movie.id}`} className="block">
                     <div className="relative rounded-lg overflow-hidden border border-white/5 bg-white/5 aspect-[2/3] shadow-lg">
                       {/* Red TOP Ribbon */}
@@ -310,7 +356,7 @@ const App = () => {
                 className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x snap-mandatory px-2"
               >
                 {categorizedMovies[genre.id]?.map((movie) => (
-                  <div key={movie.id} className="flex-none w-[200px] snap-start">
+                  <div key={movie.id} className="flex-none w-[140px] sm:w-[200px] snap-start">
                     <MovieCard movie={movie} />
                   </div>
                 ))}
@@ -392,13 +438,76 @@ const App = () => {
                       className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x snap-mandatory px-2"
                     >
                       {trendingItems.map((item) => (
-                        <div key={item.id} className="flex-none w-[280px] md:w-[320px] lg:w-[380px] snap-start">
+                        <div key={item.id} className="flex-none w-[240px] sm:w-[280px] md:w-[320px] lg:w-[380px] snap-start">
                           <TrendingCard item={item} type={trendingType} />
                         </div>
                       ))}
                     </div>
 
                     <CarouselArrow direction="right" onClick={() => scrollCarousel('trendingItems', 'right')} />
+
+                    <div className="carousel-gradient-left" />
+                    <div className="carousel-gradient-right" />
+                  </div>
+                </div>
+              </section>
+
+              {/* Only on [Provider] Section */}
+              <section className="py-20 bg-[#0F0F0F]">
+                <div className="container mx-auto px-4">
+                  <div className="flex items-center gap-3 mb-8">
+                    <div className="w-1 h-6 bg-[#E50914] rounded-sm"></div>
+                    <div className="relative" ref={providerDropdownRef}>
+                      <button
+                        onClick={() => setShowProviderDropdown(!showProviderDropdown)}
+                        className="flex items-center gap-2 text-2xl font-bold text-white tracking-wide hover:text-white/80 transition-colors"
+                      >
+                        Only on {selectedProvider.name}
+                        <IconChevronDown className={`w-5 h-5 transition-transform duration-200 ${showProviderDropdown ? 'rotate-180' : ''}`} />
+                      </button>
+
+                      {/* Dropdown */}
+                      {showProviderDropdown && (
+                        <div className="absolute top-full left-0 mt-2 bg-[#1a1a1a] border border-white/10 rounded-xl shadow-2xl z-50 min-w-[200px] py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                          {STREAMING_PROVIDERS.map((provider) => (
+                            <button
+                              key={provider.id}
+                              onClick={() => {
+                                setSelectedProvider(provider);
+                                setShowProviderDropdown(false);
+                              }}
+                              className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors hover:bg-white/10 ${
+                                selectedProvider.id === provider.id ? 'text-white bg-white/5' : 'text-gray-400'
+                              }`}
+                            >
+                              <img
+                                src={provider.logo}
+                                alt={provider.name}
+                                className="w-6 h-6 rounded"
+                              />
+                              {provider.name}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="relative">
+                    <CarouselArrow direction="left" onClick={() => scrollCarousel('providerMovies', 'left')} />
+
+                    <div
+                      ref={el => carouselRefs.current['providerMovies'] = el}
+                      className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x snap-mandatory px-2"
+                    >
+                      {providerMovies.map((item) => (
+                        <div key={item.id} className="flex-none w-[240px] sm:w-[280px] md:w-[320px] lg:w-[380px] snap-start">
+                          <TrendingCard item={item} type="movie" />
+                        </div>
+                      ))}
+                    </div>
+
+                    <CarouselArrow direction="right" onClick={() => scrollCarousel('providerMovies', 'right')} />
 
                     <div className="carousel-gradient-left" />
                     <div className="carousel-gradient-right" />
@@ -413,7 +522,7 @@ const App = () => {
                 <div className="container mx-auto px-4">
                   <h2 className="text-3xl font-heading font-bold text-foreground mb-12">All Movies</h2>
                   {isLoading ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
                       {[...Array(8)].map((_, i) => (
                         <div key={i} className="space-y-3">
                           <Skeleton className="aspect-[2/3] w-full rounded-xl" />
@@ -426,7 +535,7 @@ const App = () => {
                     <p className="text-destructive">{errorMessage}</p>
                   ) : (
                     <>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
                         {movieList.map((movie) => (
                           <MovieCard key={movie.id} movie={movie} />
                         ))}

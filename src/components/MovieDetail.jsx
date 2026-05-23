@@ -203,7 +203,7 @@ const MovieDetail = () => {
 
                 {/* Info */}
                 <div className="flex-1 space-y-4">
-                  <h1 className="text-gradient text-3xl md:text-4xl font-bold text-left max-w-none mx-0 leading-tight">
+                  <h1 className="text-gradient text-2xl sm:text-3xl md:text-4xl font-bold text-left max-w-none mx-0 leading-tight">
                     {movie.title}
                   </h1>
 

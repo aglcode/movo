@@ -54,27 +54,27 @@ const HeroCarousel = ({ trendingMovies, genres }) => {
       <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-20" />
 
       {/* Content Overlay */}
-      <div className="absolute inset-0 z-30 container mx-auto px-6 md:px-12 flex flex-col justify-center">
-        <div className="max-w-3xl space-y-6 mt-16">
+      <div className="absolute inset-0 z-30 container mx-auto px-4 sm:px-6 md:px-12 flex flex-col justify-center">
+        <div className="max-w-[65%] sm:max-w-3xl space-y-2 sm:space-y-6 mt-16">
           {/* Title */}
-          <h1 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tight leading-tight">
+          <h1 className="text-3xl sm:text-5xl md:text-7xl font-black text-white uppercase tracking-tight leading-snug md:leading-tight">
             {activeMovie.title || activeMovie.original_title}
           </h1>
 
           {/* Meta Info */}
-          <div className="flex items-center gap-4 text-sm md:text-base text-gray-300 font-medium">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-4 text-sm md:text-base text-gray-300 font-medium">
             {activeMovie.vote_average > 0 && (
               <div className="flex items-center gap-1 text-red-500">
                 <IconStarFilled className="w-4 h-4" />
                 <span>{activeMovie.vote_average.toFixed(1)}</span>
               </div>
             )}
-            <span>&bull;</span>
+            <span className="hidden sm:inline-block">&bull;</span>
             <span>{activeMovie.release_date?.substring(0, 4)}</span>
             
             {movieGenres.length > 0 && (
               <>
-                <span>&bull;</span>
+                <span className="hidden sm:inline-block">&bull;</span>
                 <span className="flex items-center gap-2">
                   {movieGenres.slice(0, 3).map((genre, i) => (
                     <span key={i}>
@@ -88,21 +88,21 @@ const HeroCarousel = ({ trendingMovies, genres }) => {
           </div>
 
           {/* Overview */}
-          <p className="text-gray-300 text-lg md:text-xl leading-relaxed line-clamp-3 md:line-clamp-4 max-w-2xl">
+          <p className="text-gray-300 text-base sm:text-lg md:text-xl leading-loose md:leading-relaxed line-clamp-2 sm:line-clamp-3 md:line-clamp-4 max-w-2xl">
             {activeMovie.overview}
           </p>
 
           {/* Actions */}
-          <div className="flex items-center gap-4 pt-4">
-            <Button size="lg" className="bg-white text-black hover:bg-white/90 rounded-full px-8 py-6 font-bold text-lg" asChild>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 pt-2 sm:pt-4">
+            <Button size="lg" className="bg-white text-black hover:bg-white/90 rounded-full px-4 py-3 text-sm sm:px-6 sm:py-4 sm:text-base md:px-8 md:py-6 md:text-lg font-bold" asChild>
               <Link to={`/movie/${activeMovie.id}`}>
-                <IconPlayerPlayFilled className="w-6 h-6 mr-2" />
+                <IconPlayerPlayFilled className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 mr-1 sm:mr-2" />
                 Play
               </Link>
             </Button>
-            <Button size="lg" variant="outline" className="bg-black/40 backdrop-blur-md border-white/20 text-white hover:bg-black/60 rounded-full px-8 py-6 font-bold text-lg" asChild>
+            <Button size="lg" variant="outline" className="bg-black/40 backdrop-blur-md border-white/20 text-white hover:bg-black/60 rounded-full px-4 py-3 text-sm sm:px-6 sm:py-4 sm:text-base md:px-8 md:py-6 md:text-lg font-bold" asChild>
               <Link to={`/movie/${activeMovie.id}`}>
-                <IconInfoCircle className="w-6 h-6 mr-2" />
+                <IconInfoCircle className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 mr-1 sm:mr-2" />
                 See More
               </Link>
             </Button>
