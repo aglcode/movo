@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { IconArrowLeft, IconStarFilled, IconClock, IconCalendar, IconMapPin, IconBuildingSkyscraper, IconExternalLink } from '@tabler/icons-react';
+import Footer from './Footer';
 
 const API_BASE_URL = 'https://api.themoviedb.org/3'
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
@@ -137,6 +138,7 @@ const MovieDetail = () => {
   };
 
   return (
+    <>
     <main className="min-h-screen bg-background relative">
       {/* Background */}
       {movie.backdrop_path && (
@@ -307,6 +309,8 @@ const MovieDetail = () => {
         </Card>
       </div>
     </main>
+    <Footer />
+    </>
   );
 };
 

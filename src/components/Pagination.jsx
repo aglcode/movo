@@ -11,8 +11,15 @@ import {
 
 const PaginationComponent = ({ currentPage, totalPages, onPageChange }) => {
   const pages = [];
-  const maxVisiblePages = 5; 
-  
+  const maxVisiblePages = 5;
+
+  const handlePageClick = (page, e) => {
+    e.preventDefault();
+    if (page >= 1 && page <= totalPages && page !== currentPage) {
+      onPageChange(page);
+    }
+  };
+
   // Calculate the range of pages to show
   let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
   let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
@@ -30,13 +37,17 @@ const PaginationComponent = ({ currentPage, totalPages, onPageChange }) => {
     <Pagination>
       <PaginationContent>
         <PaginationItem>
-          <PaginationPrevious onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 1} href="#" />
+          <PaginationPrevious
+            onClick={(e) => handlePageClick(currentPage - 1, e)}
+            disabled={currentPage === 1}
+            href="#"
+          />
         </PaginationItem>
 
         {startPage > 1 && (
           <>
             <PaginationItem>
-              <PaginationLink onClick={() => onPageChange(1)} href="#">1</PaginationLink>
+              <PaginationLink onClick={(e) => handlePageClick(1, e)} href="#">1</PaginationLink>
             </PaginationItem>
             {startPage > 2 && (
               <PaginationItem>
@@ -48,7 +59,7 @@ const PaginationComponent = ({ currentPage, totalPages, onPageChange }) => {
 
         {pages.map(page => (
           <PaginationItem key={page}>
-            <PaginationLink onClick={() => onPageChange(page)} isActive={currentPage === page} href="#">
+            <PaginationLink onClick={(e) => handlePageClick(page, e)} isActive={currentPage === page} href="#">
               {page}
             </PaginationLink>
           </PaginationItem>
@@ -62,7 +73,7 @@ const PaginationComponent = ({ currentPage, totalPages, onPageChange }) => {
               </PaginationItem>
             )}
             <PaginationItem>
-              <PaginationLink onClick={() => onPageChange(totalPages)} href="#">
+              <PaginationLink onClick={(e) => handlePageClick(totalPages, e)} href="#">
                 {totalPages}
               </PaginationLink>
             </PaginationItem>
@@ -70,7 +81,11 @@ const PaginationComponent = ({ currentPage, totalPages, onPageChange }) => {
         )}
 
         <PaginationItem>
-          <PaginationNext onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages} href="#" />
+          <PaginationNext
+            onClick={(e) => handlePageClick(currentPage + 1, e)}
+            disabled={currentPage === totalPages}
+            href="#"
+          />
         </PaginationItem>
       </PaginationContent>
     </Pagination>
