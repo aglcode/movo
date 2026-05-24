@@ -3,14 +3,15 @@ import { updateSearchCount } from './supabase';
 import { useDebounce } from 'react-use';
 import { Routes, Route } from 'react-router-dom';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import FloatingDevelopmentAlert from './components/FloatingDevelopmentAlert';
 import Navbar from './components/Navbar';
 import HeroCarousel from './components/HeroCarousel';
-import MovieDetail from './components/MovieDetail';
+import MovieDetails from './components/moviedetails';
 import Top10Section from './components/sections/Top10Section';
 import TrendingTodaySection from './components/sections/TrendingTodaySection';
 import ProviderSection from './components/sections/ProviderSection';
 import GenresSection from './components/sections/GenresSection';
-import AllMoviesSection from './components/sections//AllMoviesSection';
+import AllMoviesSection from './components/sections/AllMoviesSection';
 import Footer from './components/Footer';
 import { API_BASE_URL, API_OPTIONS } from './lib/tmdb';
 
@@ -108,6 +109,7 @@ const App = () => {
 
   return (
     <TooltipProvider>
+      <FloatingDevelopmentAlert />
       <Routes>
         <Route path="/" element={
           <main className="min-h-screen bg-background">
@@ -131,7 +133,8 @@ const App = () => {
             </div>
           </main>
         } />
-        <Route path="/movie/:id" element={<MovieDetail />} />
+        <Route path="/movie/:id" element={<MovieDetails />} />
+        <Route path="/tv/:id" element={<MovieDetails />} />
       </Routes>
     </TooltipProvider>
   )

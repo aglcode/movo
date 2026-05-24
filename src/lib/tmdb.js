@@ -41,4 +41,25 @@ export async function fetchTrailerKey(mediaType, id) {
   }
 }
 
+export function getTrailerEmbedUrl(trailerKey) {
+  const params = new URLSearchParams({
+    autoplay: '1',
+    mute: '1',
+    enablejsapi: '1',
+    controls: '0',
+    modestbranding: '1',
+    rel: '0',
+    playsinline: '1',
+    loop: '1',
+    playlist: trailerKey,
+    iv_load_policy: '3',
+    disablekb: '1',
+    fs: '0',
+    cc_load_policy: '0',
+    origin: typeof window !== 'undefined' ? window.location.origin : '',
+  });
+
+  return `https://www.youtube-nocookie.com/embed/${trailerKey}?${params.toString()}`;
+}
+
 export { API_BASE_URL };

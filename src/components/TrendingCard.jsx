@@ -1,7 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { IconStarFilled, IconVolume, IconVolumeOff } from '@tabler/icons-react';
-import { fetchTrailerKey } from '../lib/tmdb';
+import { fetchTrailerKey, getTrailerEmbedUrl } from '../lib/tmdb';
 
 const TrendingCard = ({ item, type }) => {
   const title = item.title || item.name;
@@ -13,8 +13,10 @@ const TrendingCard = ({ item, type }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [trailerKey, setTrailerKey] = useState(null);
   const [trailerChecked, setTrailerChecked] = useState(false);
+  const [isTrailerVisible, setIsTrailerVisible] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const hoverTimeoutRef = useRef(null);
+  const trailerStartRef = useRef(null);
   const iframeRef = useRef(null);
 
   const sendPlayerCommand = (func) => {
@@ -25,22 +27,41 @@ const TrendingCard = ({ item, type }) => {
   };
 
   const handleMouseEnter = () => {
-    hoverTimeoutRef.current = setTimeout(async () => {
-      setIsHovered(true);
-      if (!trailerChecked) {
+    setIsHovered(true);
+    if (!trailerChecked) {
+      hoverTimeoutRef.current = window.setTimeout(async () => {
         const key = await fetchTrailerKey(type, item.id);
         setTrailerKey(key);
         setTrailerChecked(true);
-      }
-    }, 200);
+      }, 0);
+    }
   };
 
   const handleMouseLeave = () => {
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
     }
+    if (trailerStartRef.current) {
+      clearTimeout(trailerStartRef.current);
+    }
     setIsHovered(false);
+    setIsTrailerVisible(false);
     setIsMuted(true);
+  };
+
+  const handleIframeLoad = () => {
+    sendPlayerCommand('mute');
+    sendPlayerCommand('playVideo');
+
+    if (trailerStartRef.current) {
+      clearTimeout(trailerStartRef.current);
+    }
+
+    trailerStartRef.current = window.setTimeout(() => {
+      sendPlayerCommand('mute');
+      sendPlayerCommand('playVideo');
+      setIsTrailerVisible(true);
+    }, 650);
   };
 
   const handleMuteToggle = (e) => {
@@ -51,11 +72,19 @@ const TrendingCard = ({ item, type }) => {
     setIsMuted(nextMuted);
   };
 
-  const showTrailer = isHovered && trailerKey;
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+      if (trailerStartRef.current) {
+        clearTimeout(trailerStartRef.current);
+      }
+    };
+  }, []);
 
-  const trailerSrc = trailerKey
-    ? `https://www.youtube.com/embed/${trailerKey}?autoplay=1&mute=1&enablejsapi=1&controls=0&modestbranding=1&rel=0&playsinline=1&loop=1&playlist=${trailerKey}&origin=${window.location.origin}`
-    : '';
+  const showTrailer = isHovered && trailerKey;
+  const trailerSrc = trailerKey ? getTrailerEmbedUrl(trailerKey) : '';
 
   return (
     <Link
@@ -65,34 +94,39 @@ const TrendingCard = ({ item, type }) => {
       onMouseLeave={handleMouseLeave}
     >
       <div className="flex flex-col gap-3">
-        <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-white/5 border border-white/10 transition-all duration-300 group-hover:scale-[1.02] group-hover:border-white/20">
+        <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-white/5 border border-transparent transition-all duration-300 group-hover:scale-[1.02]">
           <img
             src={item.backdrop_path ? `https://image.tmdb.org/t/p/w780${item.backdrop_path}` : '/No-Poster.png'}
             alt={title}
             className={`w-full h-full object-cover transition-all duration-500 ${
-              showTrailer ? 'opacity-0' : 'opacity-100 group-hover:scale-105'
+              showTrailer && isTrailerVisible ? 'opacity-0' : 'opacity-100 group-hover:scale-105'
             }`}
           />
 
           {showTrailer && (
-            <iframe
-              ref={iframeRef}
-              key={trailerKey}
-              src={trailerSrc}
-              title={`${title} trailer`}
-              className="absolute inset-0 h-full w-full object-cover pointer-events-none"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
+            <div className="absolute inset-0 overflow-hidden">
+              <iframe
+                ref={iframeRef}
+                key={trailerKey}
+                src={trailerSrc}
+                title={`${title} trailer`}
+                className={`pointer-events-none absolute inset-0 h-full w-full border-0 transition-opacity duration-300 ${
+                  isTrailerVisible ? 'opacity-100' : 'opacity-0'
+                }`}
+                onLoad={handleIframeLoad}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
           )}
 
           <div
             className={`absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent transition-opacity duration-300 ${
-              isHovered ? 'opacity-100' : 'opacity-0'
+              isHovered && !isTrailerVisible ? 'opacity-100' : 'opacity-0'
             }`}
           />
 
-          {showTrailer && (
+          {showTrailer && isTrailerVisible && (
             <button
               type="button"
               onClick={handleMuteToggle}
