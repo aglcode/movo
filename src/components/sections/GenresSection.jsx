@@ -16,7 +16,7 @@ import {
   IconMusic,
 } from '@tabler/icons-react';
 import CarouselArrow from './CarouselArrow';
-import { API_BASE_URL, API_OPTIONS } from '../lib/tmdb';
+import { API_BASE_URL, API_OPTIONS } from '../../lib/tmdb';
 
 const GENRE_ICONS = {
   Action: IconBolt,

@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
-import TrendingCard from '../components/TrendingCard';
+import TrendingCard from '../TrendingCard';
 import CarouselArrow from './CarouselArrow';
-import { API_BASE_URL, API_OPTIONS } from '../lib/tmdb';
+import { API_BASE_URL, API_OPTIONS } from '../../lib/tmdb';
 
 const TrendingTodaySection = () => {
   const [trendingType, setTrendingType] = useState('movie');

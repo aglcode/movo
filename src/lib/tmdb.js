@@ -13,4 +13,32 @@ export const API_OPTIONS = {
   },
 };
 
+const trailerCache = new Map();
+
+export async function fetchTrailerKey(mediaType, id) {
+  const cacheKey = `${mediaType}-${id}`;
+  if (trailerCache.has(cacheKey)) {
+    return trailerCache.get(cacheKey);
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/${mediaType}/${id}/videos`, API_OPTIONS);
+    if (!response.ok) {
+      trailerCache.set(cacheKey, null);
+      return null;
+    }
+    const data = await response.json();
+    const trailer = data.results?.find(
+      (video) => video.type === 'Trailer' && video.site === 'YouTube'
+    );
+    const key = trailer?.key ?? null;
+    trailerCache.set(cacheKey, key);
+    return key;
+  } catch (error) {
+    console.error(`Error fetching trailer for ${mediaType} ${id}:`, error);
+    trailerCache.set(cacheKey, null);
+    return null;
+  }
+}
+
 export { API_BASE_URL };

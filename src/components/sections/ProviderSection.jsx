@@ -1,8 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { IconChevronDown } from '@tabler/icons-react';
-import TrendingCard from '../components/TrendingCard';
+import TrendingCard from '../TrendingCard';
 import CarouselArrow from './CarouselArrow';
-import { API_BASE_URL, API_OPTIONS } from '../lib/tmdb';
+import { API_BASE_URL, API_OPTIONS } from '../../lib/tmdb';
 
 const STREAMING_PROVIDERS = [
   { id: 8, name: 'Netflix', logo: 'https://image.tmdb.org/t/p/w45/pbpMk2JmcoNnQwx5JGpXngfoWtp.jpg' },

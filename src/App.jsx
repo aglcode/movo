@@ -6,11 +6,11 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import Navbar from './components/Navbar';
 import HeroCarousel from './components/HeroCarousel';
 import MovieDetail from './components/MovieDetail';
-import Top10Section from './sections/Top10Section';
-import TrendingTodaySection from './sections/TrendingTodaySection';
-import ProviderSection from './sections/ProviderSection';
-import GenresSection from './sections/GenresSection';
-import AllMoviesSection from './sections/AllMoviesSection';
+import Top10Section from './components/sections/Top10Section';
+import TrendingTodaySection from './components/sections/TrendingTodaySection';
+import ProviderSection from './components/sections/ProviderSection';
+import GenresSection from './components/sections/GenresSection';
+import AllMoviesSection from './components/sections//AllMoviesSection';
 import Footer from './components/Footer';
 import { API_BASE_URL, API_OPTIONS } from './lib/tmdb';
 

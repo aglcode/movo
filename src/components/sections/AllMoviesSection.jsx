@@ -1,7 +1,7 @@
 import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import MovieCard from '../components/MovieCard';
-import Pagination from '../components/Pagination';
+import MovieCard from '../MovieCard';
+import Pagination from '../Pagination';
 
 const AllMoviesSection = ({
   isLoading,
