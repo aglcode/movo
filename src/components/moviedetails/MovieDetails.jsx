@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Footer from '../Footer';
 import TrailerHero from './TrailerHero';
 import Actors from './actors';
+import EpisodeList from './episodes';
 import YouMayLike from './similars';
 import { API_BASE_URL, API_OPTIONS } from '../../lib/tmdb';
 
@@ -261,6 +262,9 @@ const MovieDetails = () => {
         </div>
       </div>
 
+      {mediaType === 'tv' && item.seasons?.length > 0 && (
+        <EpisodeList tvId={id} seasons={item.seasons} />
+      )}
       <Actors cast={cast} />
       <YouMayLike items={similar} mediaType={mediaType} />
       <Footer />
