@@ -13,7 +13,7 @@ import ProviderSection from './components/sections/ProviderSection';
 import GenresSection from './components/sections/GenresSection';
 import AllMoviesSection from './components/sections/AllMoviesSection';
 import Footer from './components/Footer';
-import { API_BASE_URL, API_OPTIONS } from './lib/tmdb';
+import { searchMovies, discoverMovies, getTrending, getGenres } from '@/api/ENDPOINTS';
 
 const App = () => {
   const [searchItem, setSearchItem] = useState('');
@@ -33,16 +33,9 @@ const App = () => {
     setErrorMessage('');
 
     try {
-      const endpoint = query
-        ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}&page=${page}`
-        : `${API_BASE_URL}/discover/movie?sort_by=popularity.desc&page=${page}`;
-
-      const response = await fetch(endpoint, API_OPTIONS);
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch movies');
-      }
-      const data = await response.json();
+      const data = query
+        ? await searchMovies(query, page)
+        : await discoverMovies(page);
 
       if (data.response === 'false') {
         setErrorMessage(data.error || 'Failed to fetch movies');
@@ -71,11 +64,7 @@ const App = () => {
 
   const loadTrendingMovies = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/trending/movie/day`, API_OPTIONS);
-      if (!response.ok) {
-        throw new Error('Failed to fetch trending movies');
-      }
-      const data = await response.json();
+      const data = await getTrending('movie', 'day');
       setTrendingMovies(data.results.slice(0, 10));
     } catch (error) {
       console.error(`Error fetching trending movies: ${error}`);
@@ -84,11 +73,7 @@ const App = () => {
 
   const fetchGenres = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/genre/movie/list`, API_OPTIONS);
-      if (!response.ok) {
-        throw new Error('Failed to fetch genres');
-      }
-      const data = await response.json();
+      const data = await getGenres('movie');
       setGenres(data.genres);
     } catch (error) {
       console.error(`Error fetching genres: ${error}`);

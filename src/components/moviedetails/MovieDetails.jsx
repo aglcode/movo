@@ -16,7 +16,7 @@ import TrailerHero from './TrailerHero';
 import Actors from './actors';
 import EpisodeList from './episodes';
 import YouMayLike from './similars';
-import { API_BASE_URL, API_OPTIONS } from '../../lib/tmdb';
+import { getDetails, getWatchProviders, getSimilar, getCredits } from '@/api/ENDPOINTS';
 
 const WATCHLIST_KEY = 'movo-watchlist';
 
@@ -60,33 +60,28 @@ const MovieDetails = () => {
       setCast([]);
 
       try {
-        const [detailsRes, providersRes, similarRes, creditsRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/${mediaType}/${id}?append_to_response=videos`, API_OPTIONS),
-          fetch(`${API_BASE_URL}/${mediaType}/${id}/watch/providers`, API_OPTIONS),
-          fetch(`${API_BASE_URL}/${mediaType}/${id}/similar`, API_OPTIONS),
-          fetch(`${API_BASE_URL}/${mediaType}/${id}/credits`, API_OPTIONS),
+        const [detailsData, providersData, similarData, creditsData] = await Promise.allSettled([
+          getDetails(mediaType, id),
+          getWatchProviders(mediaType, id),
+          getSimilar(mediaType, id),
+          getCredits(mediaType, id),
         ]);
 
-        if (!detailsRes.ok) {
+        if (detailsData.status === 'rejected') {
           throw new Error('Failed to fetch details');
         }
+        setItem(detailsData.value);
 
-        const detailsData = await detailsRes.json();
-        setItem(detailsData);
-
-        if (providersRes.ok) {
-          const providersData = await providersRes.json();
-          setProviders(providersData.results?.US ?? null);
+        if (providersData.status === 'fulfilled') {
+          setProviders(providersData.value.results?.US ?? null);
         }
 
-        if (similarRes.ok) {
-          const similarData = await similarRes.json();
-          setSimilar(similarData.results?.slice(0, 16) ?? []);
+        if (similarData.status === 'fulfilled') {
+          setSimilar(similarData.value.results?.slice(0, 16) ?? []);
         }
 
-        if (creditsRes.ok) {
-          const creditsData = await creditsRes.json();
-          setCast(creditsData.cast?.slice(0, 12) ?? []);
+        if (creditsData.status === 'fulfilled') {
+          setCast(creditsData.value.cast?.slice(0, 12) ?? []);
         } else {
           setCast([]);
         }

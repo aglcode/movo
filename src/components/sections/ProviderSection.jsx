@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { IconChevronDown } from '@tabler/icons-react';
 import TrendingCard from '../TrendingCard';
 import CarouselArrow from './CarouselArrow';
-import { API_BASE_URL, API_OPTIONS } from '../../lib/tmdb';
+import { discoverByProvider } from '@/api/ENDPOINTS';
 
 const STREAMING_PROVIDERS = [
   { id: 8, name: 'Netflix', logo: 'https://image.tmdb.org/t/p/w45/pbpMk2JmcoNnQwx5JGpXngfoWtp.jpg' },
@@ -36,14 +36,7 @@ const ProviderSection = () => {
   useEffect(() => {
     const fetchProviderContent = async () => {
       try {
-        const response = await fetch(
-          `${API_BASE_URL}/discover/${mediaType}?with_watch_providers=${selectedProvider.id}&watch_region=US&sort_by=popularity.desc`,
-          API_OPTIONS
-        );
-        if (!response.ok) {
-          throw new Error('Failed to fetch provider content');
-        }
-        const data = await response.json();
+        const data = await discoverByProvider(mediaType, selectedProvider.id);
         setProviderItems(data.results || []);
       } catch (error) {
         console.error(`Error fetching provider ${mediaType}: ${error}`);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { API_BASE_URL, API_OPTIONS } from '../../../lib/tmdb';
+import { getSeasonEpisodes } from '@/api/ENDPOINTS';
 import SeasonSelector from './SeasonSelector';
 import EpisodeCard from './EpisodeCard';
 
@@ -24,14 +24,8 @@ const EpisodeList = ({ tvId, seasons }) => {
     const fetchEpisodes = async () => {
       setIsLoading(true);
       try {
-        const res = await fetch(
-          `${API_BASE_URL}/tv/${tvId}/season/${selectedSeason}`,
-          API_OPTIONS
-        );
-        if (res.ok) {
-          const data = await res.json();
-          setEpisodes(data.episodes ?? []);
-        }
+        const data = await getSeasonEpisodes(tvId, selectedSeason);
+        setEpisodes(data.episodes ?? []);
       } catch (err) {
         console.error('Error fetching episodes:', err);
       } finally {

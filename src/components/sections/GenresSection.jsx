@@ -16,7 +16,7 @@ import {
   IconMusic,
 } from '@tabler/icons-react';
 import CarouselArrow from './CarouselArrow';
-import { API_BASE_URL, API_OPTIONS } from '../../lib/tmdb';
+import { getGenres, discoverByGenre } from '@/api/ENDPOINTS';
 
 const GENRE_ICONS = {
   Action: IconBolt,
@@ -68,11 +68,7 @@ const GenresSection = () => {
   useEffect(() => {
     const fetchGenres = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/genre/${mediaType}/list`, API_OPTIONS);
-        if (!response.ok) {
-          throw new Error('Failed to fetch genres');
-        }
-        const data = await response.json();
+        const data = await getGenres(mediaType);
         const list = data.genres || [];
         setGenres(list);
         setSelectedGenre((prev) => {
@@ -100,14 +96,7 @@ const GenresSection = () => {
 
     const fetchByGenre = async () => {
       try {
-        const response = await fetch(
-          `${API_BASE_URL}/discover/${mediaType}?with_genres=${selectedGenre.id}&sort_by=popularity.desc`,
-          API_OPTIONS
-        );
-        if (!response.ok) {
-          throw new Error('Failed to fetch items by genre');
-        }
-        const data = await response.json();
+        const data = await discoverByGenre(mediaType, selectedGenre.id);
         setGenreItems(data.results || []);
       } catch (error) {
         console.error(`Error fetching ${mediaType} by genre: ${error}`);

@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { IconSearch } from '@tabler/icons-react';
+import { searchMovies } from '@/api/ENDPOINTS';
 
 const Search = ({ searchItem, setSearchItem, compact = false }) => {
   const [searchResults, setSearchResults] = useState([]);
@@ -11,15 +12,7 @@ const Search = ({ searchItem, setSearchItem, compact = false }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
 
-  const API_BASE_URL = 'https://api.themoviedb.org/3';
-  const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
-  const API_OPTIONS = {
-    method: 'GET',
-    headers: {
-      accept: 'application/json',
-      Authorization: `Bearer ${API_KEY}`
-    }
-  };
+
 
   useEffect(() => {
     const fetchSearchResults = async () => {
@@ -30,11 +23,7 @@ const Search = ({ searchItem, setSearchItem, compact = false }) => {
 
       setIsLoading(true);
       try {
-        const response = await fetch(
-          `${API_BASE_URL}/search/movie?query=${encodeURIComponent(searchItem)}&page=1`,
-          API_OPTIONS
-        );
-        const data = await response.json();
+        const data = await searchMovies(searchItem, 1);
         setSearchResults(data.results.slice(0, 5));
       } catch (error) {
         console.error('Error fetching search results:', error);

@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import TrendingCard from '../TrendingCard';
 import CarouselArrow from './CarouselArrow';
-import { API_BASE_URL, API_OPTIONS } from '../../lib/tmdb';
+import { getTrending } from '@/api/ENDPOINTS';
 
 const TrendingTodaySection = () => {
   const [trendingType, setTrendingType] = useState('movie');
@@ -21,11 +21,7 @@ const TrendingTodaySection = () => {
   useEffect(() => {
     const loadTrendingItems = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/trending/${trendingType}/day`, API_OPTIONS);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch trending ${trendingType}`);
-        }
-        const data = await response.json();
+        const data = await getTrending(trendingType, 'day');
         setTrendingItems(data.results);
       } catch (error) {
         console.error(`Error fetching trending ${trendingType}: ${error}`);
