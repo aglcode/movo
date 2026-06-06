@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Search from './Search';
 import { Button } from '@/components/ui/button';
-import { IconHome, IconUser, IconSearch, IconX } from '@tabler/icons-react';
+import { IconHome, IconUser, IconSearch } from '@tabler/icons-react';
 
 const Navbar = ({ searchItem, setSearchItem }) => {
-  const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const [showSearchModal, setShowSearchModal] = useState(false);
 
   return (
     <>
@@ -28,19 +28,14 @@ const Navbar = ({ searchItem, setSearchItem }) => {
             </Button>
           </div>
 
-          {/* Search Input (Desktop Mode) */}
-          <div className="w-64 hidden sm:block">
-            <Search searchItem={searchItem} setSearchItem={setSearchItem} compact={true} />
-          </div>
-
-          {/* Mobile Search Toggle */}
+          {/* Search Toggle */}
           <Button 
             variant="ghost" 
             size="icon" 
-            className="sm:hidden text-white/80 hover:text-white rounded-full"
-            onClick={() => setShowMobileSearch(!showMobileSearch)}
+            className="text-white/80 hover:text-white rounded-full"
+            onClick={() => setShowSearchModal(true)}
           >
-            {showMobileSearch ? <IconX className="w-5 h-5" /> : <IconSearch className="w-5 h-5" />}
+            <IconSearch className="w-5 h-5" />
           </Button>
 
           {/* User Profile / Login */}
@@ -50,11 +45,13 @@ const Navbar = ({ searchItem, setSearchItem }) => {
         </div>
       </nav>
 
-      {/* Mobile Search Bar (Expandable) */}
-      {showMobileSearch && (
-        <div className="absolute top-[72px] left-0 right-0 z-40 px-4 sm:hidden animate-in slide-in-from-top-2">
-          <Search searchItem={searchItem} setSearchItem={setSearchItem} compact={false} />
-        </div>
+      {/* Search Modal */}
+      {showSearchModal && (
+        <Search 
+          searchItem={searchItem} 
+          setSearchItem={setSearchItem} 
+          onClose={() => setShowSearchModal(false)} 
+        />
       )}
     </>
   );
