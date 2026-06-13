@@ -53,7 +53,7 @@ const SeasonSelector = ({ seasons, selectedSeason, onSeasonChange, searchQuery, 
                   }}
                   className={`w-full text-left px-4 py-2.5 text-sm transition-colors duration-100 ${
                     season.season_number === selectedSeason
-                      ? 'text-[#E50914] font-semibold bg-white/5'
+                      ? 'text-[#1B4242] font-semibold bg-white/5'
                       : 'text-white/70 hover:text-white hover:bg-white/5'
                   }`}
                 >

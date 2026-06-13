@@ -3,7 +3,7 @@ import { getSeasonEpisodes } from '@/api/ENDPOINTS';
 import SeasonSelector from './SeasonSelector';
 import EpisodeCard from './EpisodeCard';
 
-const EpisodeList = ({ tvId, seasons }) => {
+const EpisodeList = ({ tvId, seasons, onEpisodePlay }) => {
   // Filter out "Specials" (season_number 0) and pick the first real season by default
   const availableSeasons = useMemo(
     () => (seasons ?? []).filter((s) => s.season_number > 0),
@@ -56,7 +56,7 @@ const EpisodeList = ({ tvId, seasons }) => {
       <div className="mx-auto max-w-7xl px-8 sm:px-12 lg:px-16">
         {/* Section header */}
         <div className="flex items-center gap-3 mb-8">
-          <div className="w-1 h-6 bg-[#E50914] rounded-sm" />
+          <div className="w-1 h-6 bg-[#1B4242] rounded-sm" />
           <h2 className="text-2xl font-bold text-white tracking-wide">Episodes</h2>
         </div>
 
@@ -88,7 +88,13 @@ const EpisodeList = ({ tvId, seasons }) => {
           ) : filteredEpisodes.length > 0 ? (
             <div className="space-y-3">
               {filteredEpisodes.map((ep, idx) => (
-                <EpisodeCard key={ep.id ?? idx} episode={ep} index={idx} />
+                <EpisodeCard
+                  key={ep.id ?? idx}
+                  episode={ep}
+                  index={idx}
+                  seasonNumber={selectedSeason}
+                  onPlay={onEpisodePlay}
+                />
               ))}
             </div>
           ) : (
@@ -103,3 +109,4 @@ const EpisodeList = ({ tvId, seasons }) => {
 };
 
 export default EpisodeList;
+

@@ -147,7 +147,7 @@ const GenresSection = () => {
       <div className="container mx-auto px-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-3">
-            <div className="w-1 h-6 bg-[#E50914] rounded-sm"></div>
+            <div className="w-1 h-6 bg-[#1B4242] rounded-sm"></div>
             <div className="relative" ref={genreDropdownRef}>
               <button
                 onClick={() => setShowGenreDropdown(!showGenreDropdown)}
@@ -155,7 +155,7 @@ const GenresSection = () => {
               >
                 {selectedGenre.name}
                 <IconChevronDown
-                  className={`w-5 h-5 text-[#E50914] transition-transform duration-200 ${showGenreDropdown ? 'rotate-180' : ''}`}
+                  className={`w-5 h-5 text-[#1B4242] transition-transform duration-200 ${showGenreDropdown ? 'rotate-180' : ''}`}
                 />
               </button>
 
@@ -169,7 +169,7 @@ const GenresSection = () => {
                         setShowGenreDropdown(false);
                       }}
                       className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors hover:bg-white/10 ${
-                        selectedGenre.id === genre.id ? 'text-[#E50914]' : 'text-gray-400'
+                        selectedGenre.id === genre.id ? 'text-[#1B4242]' : 'text-gray-400'
                       }`}
                     >
                       {getGenreIcon(genre.name)}
@@ -208,7 +208,7 @@ const GenresSection = () => {
             </button>
 
             <div
-              className="absolute left-0 -bottom-[1px] h-[2px] bg-[#E50914] transition-all duration-300 ease-in-out"
+              className="absolute left-0 -bottom-[1px] h-[2px] bg-[#1B4242] transition-all duration-300 ease-in-out"
               style={{
                 transform: `translateX(${indicatorStyle.left}px)`,
                 width: `${indicatorStyle.width}px`,
@@ -244,7 +244,7 @@ const GenresSection = () => {
                         {title}
                       </h3>
                       <div className="flex items-center gap-2 text-[11px] text-gray-400 font-medium">
-                        <span className="flex items-center gap-[2px] text-[#E50914]">
+                        <span className="flex items-center gap-[2px] text-[#45A8A8]">
                           <IconStarFilled className="w-3 h-3" />
                           {item.vote_average?.toFixed(1) || 'N/A'}
                         </span>

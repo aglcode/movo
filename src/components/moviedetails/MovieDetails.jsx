@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import {
   IconArrowLeft,
   IconStarFilled,
   IconPlayerPlayFilled,
   IconPlus,
-  IconDownload,
+  IconExternalLink,
   IconSparkles,
   IconCheck,
 } from '@tabler/icons-react';
@@ -16,6 +16,7 @@ import TrailerHero from './TrailerHero';
 import Actors from './actors';
 import EpisodeList from './episodes';
 import YouMayLike from './similars';
+import PlayWindow from '../PlayWindow/PlayWindow';
 import { getDetails, getWatchProviders, getSimilar, getCredits } from '@/api/ENDPOINTS';
 
 const WATCHLIST_KEY = 'movo-watchlist';
@@ -53,6 +54,10 @@ const MovieDetails = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isMuted, setIsMuted] = useState(true);
   const [inWatchlist, setInWatchlist] = useState(false);
+  const [showPlayer, setShowPlayer] = useState(false);
+  const [playerEpisode, setPlayerEpisode] = useState({ season: 1, episode: 1 });
+  const playerRef = useRef(null);
+
   useEffect(() => {
     const fetchDetails = async () => {
       setIsLoading(true);
@@ -119,6 +124,28 @@ const MovieDetails = () => {
     document.getElementById('similars')?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const handlePlayMovie = useCallback(() => {
+    if (mediaType === 'tv') {
+      setPlayerEpisode({ season: 1, episode: 1 });
+    }
+    setShowPlayer(true);
+    setTimeout(() => {
+      playerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  }, [mediaType]);
+
+  const handleEpisodePlay = useCallback((season, episode) => {
+    setPlayerEpisode({ season, episode });
+    setShowPlayer(true);
+    setTimeout(() => {
+      playerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  }, []);
+
+  const handleClosePlayer = useCallback(() => {
+    setShowPlayer(false);
+  }, []);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-black">
@@ -173,7 +200,7 @@ const MovieDetails = () => {
             </h1>
 
             <div className="flex flex-wrap items-center gap-2 text-sm text-white/80 font-medium">
-              <span className="flex items-center gap-1 text-[#E50914]">
+              <span className="flex items-center gap-1 text-[#45A8A8]">
                 <IconStarFilled className="size-4" />
                 {rating}
               </span>
@@ -196,27 +223,16 @@ const MovieDetails = () => {
             )}
 
             <div className="flex flex-wrap items-center gap-3 pt-2">
-              {providers?.link ? (
-                <Button
-                  size="lg"
-                  className="rounded-full bg-white text-black hover:bg-white/90 px-8 font-semibold"
-                  asChild
-                >
-                  <a href={providers.link} target="_blank" rel="noopener noreferrer">
-                    <IconPlayerPlayFilled className="size-5 mr-2 fill-black" />
-                    Play
-                  </a>
-                </Button>
-              ) : (
-                <Button
-                  size="lg"
-                  disabled
-                  className="rounded-full bg-white/20 text-white/50 px-8 font-semibold"
-                >
-                  <IconPlayerPlayFilled className="size-5 mr-2" />
-                  Play
-                </Button>
-              )}
+              {/* Primary Play button — opens Vidking player */}
+              <Button
+                type="button"
+                size="lg"
+                className="rounded-full bg-white text-black hover:bg-white/90 px-8 font-semibold"
+                onClick={handlePlayMovie}
+              >
+                <IconPlayerPlayFilled className="size-5 mr-2 fill-black" />
+                Play
+              </Button>
 
               <Button
                 type="button"
@@ -229,17 +245,21 @@ const MovieDetails = () => {
                 {inWatchlist ? <IconCheck className="size-5" /> : <IconPlus className="size-5" />}
               </Button>
 
-              <Button
-                type="button"
-                size="lg"
-                variant="outline"
-                className="rounded-full border-white/20 bg-black/40 text-white hover:bg-white/10 hover:text-white gap-2"
-                onClick={() => providers?.link && window.open(providers.link, '_blank')}
-                disabled={!providers?.link}
-              >
-                <IconDownload className="size-5" />
-                Download
-              </Button>
+              {/* Fallback: external watch provider link */}
+              {providers?.link && (
+                <Button
+                  type="button"
+                  size="lg"
+                  variant="outline"
+                  className="rounded-full border-white/20 bg-black/40 text-white hover:bg-white/10 hover:text-white gap-2"
+                  asChild
+                >
+                  <a href={providers.link} target="_blank" rel="noopener noreferrer">
+                    <IconExternalLink className="size-5" />
+                    Where to Watch
+                  </a>
+                </Button>
+              )}
 
               <Button
                 type="button"
@@ -257,8 +277,21 @@ const MovieDetails = () => {
         </div>
       </div>
 
+      {/* Vidking Player */}
+      {showPlayer && (
+        <div ref={playerRef}>
+          <PlayWindow
+            tmdbId={id}
+            mediaType={mediaType}
+            season={mediaType === 'tv' ? playerEpisode.season : undefined}
+            episode={mediaType === 'tv' ? playerEpisode.episode : undefined}
+            onClose={handleClosePlayer}
+          />
+        </div>
+      )}
+
       {mediaType === 'tv' && item.seasons?.length > 0 && (
-        <EpisodeList tvId={id} seasons={item.seasons} />
+        <EpisodeList tvId={id} seasons={item.seasons} onEpisodePlay={handleEpisodePlay} />
       )}
       <Actors cast={cast} />
       <YouMayLike items={similar} mediaType={mediaType} />

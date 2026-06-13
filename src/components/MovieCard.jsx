@@ -17,7 +17,7 @@ const MovieCard = ({ movie: { title, vote_average, poster_path, release_date, id
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
           {/* Rating badge - top right */}
-          <Badge className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm text-yellow-400 border-white/10 gap-1">
+          <Badge className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm text-[#45A8A8] border-white/10 gap-1">
             <IconStarFilled className="size-3" />
             {vote_average ? vote_average.toFixed(1) : 'N/A'}
           </Badge>

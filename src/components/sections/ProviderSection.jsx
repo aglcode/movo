@@ -83,7 +83,7 @@ const ProviderSection = () => {
       <div className="container mx-auto px-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-3">
-            <div className="w-1 h-6 bg-[#E50914] rounded-sm"></div>
+            <div className="w-1 h-6 bg-[#1B4242] rounded-sm"></div>
             <div className="relative" ref={providerDropdownRef}>
               <button
                 onClick={() => setShowProviderDropdown(!showProviderDropdown)}
@@ -142,7 +142,7 @@ const ProviderSection = () => {
             </button>
 
             <div
-              className="absolute left-0 -bottom-[1px] h-[2px] bg-[#E50914] transition-all duration-300 ease-in-out"
+              className="absolute left-0 -bottom-[1px] h-[2px] bg-[#1B4242] transition-all duration-300 ease-in-out"
               style={{
                 transform: `translateX(${indicatorStyle.left}px)`,
                 width: `${indicatorStyle.width}px`,
