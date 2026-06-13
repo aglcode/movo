@@ -56,7 +56,7 @@ const EpisodeList = ({ tvId, seasons, onEpisodePlay }) => {
       <div className="mx-auto max-w-7xl px-8 sm:px-12 lg:px-16">
         {/* Section header */}
         <div className="flex items-center gap-3 mb-8">
-          <div className="w-1 h-6 bg-[#1B4242] rounded-sm" />
+          <div className="w-1 h-6 bg-brand rounded-sm" />
           <h2 className="text-2xl font-bold text-white tracking-wide">Episodes</h2>
         </div>
 

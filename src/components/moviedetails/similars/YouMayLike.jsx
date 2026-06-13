@@ -8,7 +8,7 @@ const YouMayLike = ({ items, mediaType }) => {
     <section id="similars" className="bg-black py-16 md:py-20">
       <div className="mx-auto max-w-7xl px-8 sm:px-12 lg:px-16">
         <div className="flex items-center gap-3 mb-8 md:mb-10">
-          <div className="w-1 h-6 bg-[#1B4242] rounded-sm" />
+          <div className="w-1 h-6 bg-brand rounded-sm" />
           <h2 className="text-2xl font-bold text-white tracking-wide">You may like</h2>
         </div>
 

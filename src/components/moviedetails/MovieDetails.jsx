@@ -200,7 +200,7 @@ const MovieDetails = () => {
             </h1>
 
             <div className="flex flex-wrap items-center gap-2 text-sm text-white/80 font-medium">
-              <span className="flex items-center gap-1 text-[#45A8A8]">
+              <span className="flex items-center gap-1 text-brand-light">
                 <IconStarFilled className="size-4" />
                 {rating}
               </span>

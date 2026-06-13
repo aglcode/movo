@@ -139,11 +139,11 @@ const TrendingCard = ({ item, type }) => {
         </div>
 
         <div className="space-y-1">
-          <h3 className="text-white font-medium text-sm sm:text-base truncate transition-colors group-hover:text-[#1B4242]">
+          <h3 className="text-white font-medium text-sm sm:text-base truncate transition-colors group-hover:text-brand">
             {title}
           </h3>
           <div className="flex items-center gap-2 text-[11px] sm:text-xs text-gray-400 font-medium">
-            <span className="flex items-center gap-[2px] text-[#45A8A8]">
+            <span className="flex items-center gap-[2px] text-brand-light">
               <IconStarFilled className="w-3 h-3" />
               {rating}
             </span>

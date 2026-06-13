@@ -64,7 +64,7 @@ const HeroCarousel = ({ trendingMovies, genres }) => {
           {/* Meta Info */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-4 text-sm md:text-base text-gray-300 font-medium">
             {activeMovie.vote_average > 0 && (
-              <div className="flex items-center gap-1 text-[#45A8A8]">
+              <div className="flex items-center gap-1 text-brand-light">
                 <IconStarFilled className="w-4 h-4" />
                 <span>{activeMovie.vote_average.toFixed(1)}</span>
               </div>

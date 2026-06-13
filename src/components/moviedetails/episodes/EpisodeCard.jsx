@@ -59,7 +59,7 @@ const EpisodeCard = ({ episode, index, seasonNumber, onPlay }) => {
         {/* {progressPercent > 0 && (
           <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-white/10">
             <div
-              className="h-full bg-[#1B4242] transition-all duration-300"
+              className="h-full bg-brand transition-all duration-300"
               style={{ width: `${Math.min(progressPercent, 100)}%` }}
             />
           </div>

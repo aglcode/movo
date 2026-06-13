@@ -13,9 +13,9 @@ const FloatingDevelopmentAlert = () => {
       <Alert className="border-white/10 bg-black/80 text-white shadow-2xl shadow-black/40 backdrop-blur-md">
         <AlertCircleIcon className="text-yello-500" />
         <AlertTitle><span className='text-yellow-500'>Notice:</span> Website currently under development</AlertTitle>
-        {/* <AlertDescription className="text-white/70">
-          From Dev: gelo
-        </AlertDescription> */}
+        <AlertDescription className="text-white/70">
+          v1.0.0-beta.1
+        </AlertDescription>
       </Alert>
     </div>
   );

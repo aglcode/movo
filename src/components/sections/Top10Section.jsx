@@ -19,7 +19,7 @@ const Top10Section = ({ trendingMovies }) => {
     <section className="py-20 bg-[#0F0F0F]">
       <div className="container mx-auto px-4">
         <div className="flex items-center gap-3 mb-8">
-          <div className="w-1 h-6 bg-[#1B4242] rounded-sm"></div>
+          <div className="w-1 h-6 bg-brand rounded-sm"></div>
           <h2 className="text-2xl font-bold text-white tracking-wide">TOP 10 Today</h2>
         </div>
 
@@ -35,7 +35,7 @@ const Top10Section = ({ trendingMovies }) => {
                 <Link to={`/movie/${movie.id}`} className="block">
                   <div className="relative rounded-lg overflow-hidden border border-white/5 bg-white/5 aspect-[2/3] shadow-lg">
                     <div
-                      className="absolute top-0 left-0 bg-[#1B4242] text-white w-9 pb-2 z-10 flex flex-col items-center pt-1 shadow-md"
+                      className="absolute top-0 left-0 bg-brand text-white w-9 pb-2 z-10 flex flex-col items-center pt-1 shadow-md"
                       style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 50% 85%, 0 100%)' }}
                     >
                       <span className="text-[10px] font-bold leading-none tracking-wider mb-[2px]">TOP</span>
@@ -52,7 +52,7 @@ const Top10Section = ({ trendingMovies }) => {
                   <div className="mt-4 space-y-1">
                     <h3 className="text-white font-medium text-sm truncate group-hover:text-white/80 transition-colors">{movie.title || movie.original_title}</h3>
                     <div className="flex items-center gap-2 text-[11px] text-gray-400 font-medium">
-                      <span className="flex items-center gap-[2px] text-[#45A8A8]">
+                      <span className="flex items-center gap-[2px] text-brand-light">
                         <IconStarFilled className="w-3 h-3" />
                         {movie.vote_average?.toFixed(1) || 'N/A'}
                       </span>

@@ -9,7 +9,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 lg:gap-16">
           <div className="space-y-4">
             <Link to="/" className="inline-flex items-center gap-2">
-              <img src="/logo.svg" alt="Movo Logo" className="w-8 h-8" />
+              <img src="/logo.png" alt="Movo Logo" className="w-8 h-8" />
               <span className="text-foreground text-xl font-heading font-bold tracking-wide">Movo</span>
             </Link>
             <p className="text-sm text-gray-400 leading-relaxed max-w-sm">
@@ -37,18 +37,27 @@ const Footer = () => {
           </div>
 
           <div className="space-y-4 sm:col-span-2 lg:col-span-1">
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider">Data</h3>
+            <h3 className="text-sm font-bold text-white uppercase tracking-wider">Attribution</h3>
             <p className="text-sm text-gray-400 leading-relaxed max-w-md">
               This product uses the{' '}
               <a
                 href="https://www.themoviedb.org/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[#1B4242] hover:underline"
+                className="text-brand hover:underline"
               >
-                TMDB
+                TMDB API
               </a>{' '}
-              API but is not endorsed or certified by TMDB.
+              for data, and{' '}
+              <a
+                href="https://vidking.net/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-brand hover:underline"
+              >
+                Vidking
+              </a>{' '}
+              for video playback. Movo is not endorsed or certified by either service.
             </p>
           </div>
         </div>

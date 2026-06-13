@@ -32,15 +32,18 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   html {
     @apply font-sans;
   }
+
   body {
     font-family: "DM Sans", serif;
     font-optical-sizing: auto;
     @apply bg-background text-foreground;
     min-height: 100vh;
   }
+
   a,
   button,
   [role="button"],
@@ -49,6 +52,7 @@
   [type="reset"] {
     cursor: pointer;
   }
+
   button:disabled,
   [aria-disabled="true"] {
     cursor: not-allowed;
@@ -157,6 +161,8 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  --color-brand: #F4B942;
+  --color-brand-light: #ffd87a;
 }
 
 /* Dark mode only — applied to :root directly */
@@ -205,12 +211,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #333;
+  background: var(--color-brand);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #444;
+  background: var(--color-brand-light);
 }
 
 /* Container styles */
