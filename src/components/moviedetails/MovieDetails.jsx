@@ -18,6 +18,7 @@ import EpisodeList from './episodes';
 import YouMayLike from './similars';
 import PlayWindow from '../PlayWindow/PlayWindow';
 import { getDetails, getWatchProviders, getSimilar, getCredits } from '@/api/ENDPOINTS';
+import { updateClickCount, updatePlayCount } from '@/supabase';
 
 const WATCHLIST_KEY = 'movo-watchlist';
 
@@ -75,7 +76,16 @@ const MovieDetails = () => {
         if (detailsData.status === 'rejected') {
           throw new Error('Failed to fetch details');
         }
-        setItem(detailsData.value);
+
+        // fire and forget on click no awaits 
+        const detail = detailsData.value;
+        setItem(detail);
+        updateClickCount({
+          media_type: mediaType,
+          tmdb_id: Number(id),
+          title: detail.title || detail.name,
+          poster_url: detail.poster_path ? `https://image.tmdb.org/t/p/w500${detail.poster_path}` : null,
+        });
 
         if (providersData.status === 'fulfilled') {
           setProviders(providersData.value.results?.US ?? null);
@@ -132,7 +142,21 @@ const MovieDetails = () => {
     setTimeout(() => {
       playerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
-  }, [mediaType]);
+
+    // fire and forget on play no awaits 
+    if (item) {
+      updatePlayCount({
+        media_type: mediaType,
+        tmdb_id: Number(id),
+        title: item.title || item.name,
+        poster_url: item.poster_path
+          ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
+          : null,
+        season_number: mediaType === 'tv' ? 1 : null,
+        episode_number: mediaType === 'tv' ? 1 : null,
+      });
+    }
+  }, [mediaType, id, item]);
 
   const handleEpisodePlay = useCallback((season, episode) => {
     setPlayerEpisode({ season, episode });
