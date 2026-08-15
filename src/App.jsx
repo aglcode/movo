@@ -94,7 +94,7 @@ const App = () => {
 
   return (
     <TooltipProvider>
-      <FloatingDevelopmentAlert />
+      {/* <FloatingDevelopmentAlert /> */}
       <Routes>
         <Route path="/" element={
           <main className="min-h-screen bg-background">
