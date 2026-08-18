@@ -33,6 +33,11 @@ const Footer = () => {
                   All Movies
                 </a>
               </li>
+              <li>
+                <Link to="/changelog" className="text-sm text-gray-400 hover:text-white transition-colors">
+                  Changelog
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -50,12 +55,12 @@ const Footer = () => {
               </a>{' '}
               for data, and{' '}
               <a
-                href="https://vidking.net/"
+                href="https://vidsrc.net/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-brand hover:underline"
               >
-                Vidking
+                VidSrc
               </a>{' '}
               for video playback. Movo is not endorsed or certified by either service.
             </p>

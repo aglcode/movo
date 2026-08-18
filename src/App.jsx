@@ -13,6 +13,7 @@ import ProviderSection from './components/sections/ProviderSection';
 import GenresSection from './components/sections/GenresSection';
 import AllMoviesSection from './components/sections/AllMoviesSection';
 import Footer from './components/Footer';
+import ChangelogPage from './pages/Changelog';
 import { searchMovies, discoverMovies, getTrending, getGenres } from '@/api/ENDPOINTS';
 
 const App = () => {
@@ -120,6 +121,7 @@ const App = () => {
         } />
         <Route path="/movie/:id" element={<MovieDetails />} />
         <Route path="/tv/:id" element={<MovieDetails />} />
+        <Route path="/changelog" element={<ChangelogPage />} />
       </Routes>
     </TooltipProvider>
   )
