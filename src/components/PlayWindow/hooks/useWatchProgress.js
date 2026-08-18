@@ -1,11 +1,11 @@
 /**
- * useWatchProgress — Watch progress persistence for the Vidking Player.
+ * useWatchProgress — Watch progress persistence for the VidSrc Player.
  *
  * Currently uses localStorage.  When you're ready to migrate to Supabase,
  * swap the storage adapter functions at the bottom of this file.
  */
 
-import { STORAGE_KEY } from '@/lib/vidking';
+import { STORAGE_KEY } from '@/lib/player';
 
 // Key helpers
 
@@ -47,9 +47,63 @@ export function getProgress(mediaType, tmdbId, season, episode) {
 }
 
 /**
- * Persist watch progress from a Vidking PLAYER_EVENT data payload.
+ * Persist watch progress from a VidSrc PLAYER_EVENT data payload.
  *
- * Expected shape (from Vidking postMessage):
+ * Expected shape (from VidSrc postMessage):
+ * {
+ *   player_info: {
+ *     imdb: "tt1300854" | null,
+ *     tmdb: "1078605" | null,
+ *     mediaType: "movie" | "tv",
+ *     season: number | null,
+ *     episode: number | null,
+ *   },
+ *   player_status: "playing" | "paused" | "completed" | "seeked",
+ *   player_progress: number,   // current time in seconds
+ *   player_duration: number,   // total duration in seconds
+ * }
+ */
+export function saveProgress(eventData) {
+  if (!eventData || !eventData.player_info) return;
+
+  const { player_info, player_status, player_progress, player_duration } = eventData;
+
+  // Resolve the content ID — prefer TMDB, fall back to IMDB
+  const id = player_info.tmdb || player_info.imdb;
+  if (!id) return;
+
+  const { mediaType, season, episode } = player_info;
+
+  // On 'completed', clear the entry so the user starts fresh next time.
+  if (player_status === 'completed') {
+    clearProgress(mediaType, id, season, episode);
+    return;
+  }
+
+  // Only persist on 'playing' or 'seeked' (meaningful progress updates)
+  if (player_status !== 'playing' && player_status !== 'seeked') return;
+
+  const store = readStore();
+  const key = buildKey(mediaType, id, season, episode);
+
+  const currentTime = Math.floor(player_progress ?? 0);
+  const duration = Math.floor(player_duration ?? 0);
+
+  store[key] = {
+    currentTime,
+    duration,
+    progress: duration > 0 ? parseFloat((currentTime / duration).toFixed(4)) : 0,
+    updatedAt: Date.now(),
+  };
+
+  writeStore(store);
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ * VidKing payload shape (kept for reference during rollback)
+ * ---------------------------------------------------------------------------
+ *
  * {
  *   event: 'timeupdate' | 'play' | 'pause' | 'ended' | 'seeked',
  *   currentTime: number,
@@ -61,30 +115,9 @@ export function getProgress(mediaType, tmdbId, season, episode) {
  *   episode: number,
  *   timestamp: number,
  * }
+ *
+ * ---------------------------------------------------------------------------
  */
-export function saveProgress(eventData) {
-  if (!eventData || !eventData.id) return;
-
-  const { event, currentTime, duration, progress, id, mediaType, season, episode } = eventData;
-
-  // On 'ended', clear the entry so the user starts fresh next time.
-  if (event === 'ended') {
-    clearProgress(mediaType, id, season, episode);
-    return;
-  }
-
-  const store = readStore();
-  const key = buildKey(mediaType, id, season, episode);
-
-  store[key] = {
-    currentTime: Math.floor(currentTime ?? 0),
-    duration: Math.floor(duration ?? 0),
-    progress: parseFloat((progress ?? 0).toFixed(2)),
-    updatedAt: Date.now(),
-  };
-
-  writeStore(store);
-}
 
 // Remove a saved progress entry (e.g. when the video finishes).
 export function clearProgress(mediaType, tmdbId, season, episode) {

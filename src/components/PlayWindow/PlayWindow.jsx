@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import { IconX } from '@tabler/icons-react';
 import { getProgress, saveProgress } from './hooks/useWatchProgress';
-import { VIDKING_BASE, BRAND_COLOR } from '@/lib/vidking';
+import { VIDSRC_BASE } from '@/lib/player';
 
 /**
- * PlayWindow — Full-width Vidking iframe player.
+ * PlayWindow — Full-width VidSrc iframe player.
  *
  * Props:
  *   tmdbId       - TMDB ID of the movie or show
@@ -17,54 +17,40 @@ import { VIDKING_BASE, BRAND_COLOR } from '@/lib/vidking';
 const PlayWindow = ({ tmdbId, mediaType, season, episode, onClose, autoPlay = true }) => {
   const iframeRef = useRef(null);
 
-  // Build the Vidking embed URL
+  // Build the VidSrc embed URL
   const buildSrc = useCallback(() => {
     const params = new URLSearchParams();
-    params.set('color', BRAND_COLOR);
-    if (autoPlay) params.set('autoPlay', 'true');
+    if (autoPlay) params.set('autoplay', '1');
 
-    // Try to hide the title in the player (undocumented Vidking params, but standard for video players)
-    params.set('info', '0');
-    params.set('title', '0');
-
-    // Resume from saved progress (Temporarily disabled)
-    // const saved = getProgress(mediaType, tmdbId, season, episode);
-    // if (saved?.currentTime && saved.currentTime > 5) {
-    //   params.set('progress', String(Math.floor(saved.currentTime)));
-    // }
-
-    if (mediaType === 'tv' && season != null && episode != null) {
-      params.set('nextEpisode', 'true');
-      params.set('episodeSelector', 'true');
-      return `${VIDKING_BASE}/tv/${tmdbId}/${season}/${episode}?${params.toString()}`;
+    // Resume from saved progress
+    const saved = getProgress(mediaType, tmdbId, season, episode);
+    if (saved?.currentTime && saved.currentTime > 5) {
+      params.set('startAt', String(Math.floor(saved.currentTime)));
     }
 
-    return `${VIDKING_BASE}/movie/${tmdbId}?${params.toString()}`;
+    if (mediaType === 'tv' && season != null && episode != null) {
+      params.set('autonext', '1');
+      const qs = params.toString();
+      return `${VIDSRC_BASE}/tv/${tmdbId}/${season}/${episode}${qs ? `?${qs}` : ''}`;
+    }
+
+    const qs = params.toString();
+    return `${VIDSRC_BASE}/movie/${tmdbId}${qs ? `?${qs}` : ''}`;
   }, [tmdbId, mediaType, season, episode, autoPlay]);
 
-  // Listen for Vidking postMessage events (Temporarily disabled)
-  /*
+  // Listen for VidSrc postMessage events
   useEffect(() => {
     const handleMessage = (event) => {
-      // Only process string messages (Vidking sends JSON strings)
-      if (typeof event.data !== 'string') return;
+      // VidSrc sends data as an object with { type, data }
+      const msg = event.data;
+      if (!msg || msg.type !== 'PLAYER_EVENT' || !msg.data) return;
 
-      try {
-        const parsed = JSON.parse(event.data);
-
-        // Vidking wraps data in { type: 'PLAYER_EVENT', data: { ... } }
-        if (parsed?.type === 'PLAYER_EVENT' && parsed.data) {
-          saveProgress(parsed.data);
-        }
-      } catch {
-        // Not a JSON message we care about — ignore silently
-      }
+      saveProgress(msg.data);
     };
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, []);
-  */
 
   // Lock body scroll when fullscreen player is open
   useEffect(() => {
@@ -104,7 +90,7 @@ const PlayWindow = ({ tmdbId, mediaType, season, episode, onClose, autoPlay = tr
           ref={iframeRef}
           key={src}
           src={src}
-          title="Vidking Player"
+          title="VidSrc Player"
           className="absolute inset-0 w-full h-full border-0"
           allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
           allowFullScreen
@@ -113,5 +99,31 @@ const PlayWindow = ({ tmdbId, mediaType, season, episode, onClose, autoPlay = tr
     </section>
   );
 };
+
+/*
+ * ---------------------------------------------------------------------------
+ * VidKing fallback (kept for rollback — restore imports from @/lib/vidking)
+ * ---------------------------------------------------------------------------
+ *
+ * import { VIDKING_BASE, BRAND_COLOR } from '@/lib/vidking';
+ *
+ * const buildSrc = useCallback(() => {
+ *   const params = new URLSearchParams();
+ *   params.set('color', BRAND_COLOR);
+ *   if (autoPlay) params.set('autoPlay', 'true');
+ *   params.set('info', '0');
+ *   params.set('title', '0');
+ *
+ *   if (mediaType === 'tv' && season != null && episode != null) {
+ *     params.set('nextEpisode', 'true');
+ *     params.set('episodeSelector', 'true');
+ *     return `${VIDKING_BASE}/tv/${tmdbId}/${season}/${episode}?${params.toString()}`;
+ *   }
+ *
+ *   return `${VIDKING_BASE}/movie/${tmdbId}?${params.toString()}`;
+ * }, [tmdbId, mediaType, season, episode, autoPlay]);
+ *
+ * ---------------------------------------------------------------------------
+ */
 
 export default PlayWindow;

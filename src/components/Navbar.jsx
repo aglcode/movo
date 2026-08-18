@@ -18,6 +18,14 @@ const Navbar = ({ searchItem, setSearchItem }) => {
 
         {/* Right Actions */}
         <div className="flex items-center gap-2 sm:gap-4">
+          {/* Changelog link */}
+          <Link
+            to="/changelog"
+            className="hidden sm:flex items-center text-sm font-medium text-white/60 hover:text-white transition-colors"
+          >
+            Changelog
+          </Link>
+
           {/* Search Toggle (Dummy Input) */}
           <div 
             onClick={() => setShowSearchModal(true)}

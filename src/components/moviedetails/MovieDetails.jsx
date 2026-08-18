@@ -247,7 +247,7 @@ const MovieDetails = () => {
             )}
 
             <div className="flex flex-wrap items-center gap-3 pt-2">
-              {/* Primary Play button — opens Vidking player */}
+              {/* Primary Play button — opens VidSrc player */}
               <Button
                 type="button"
                 size="lg"
@@ -301,7 +301,7 @@ const MovieDetails = () => {
         </div>
       </div>
 
-      {/* Vidking Player */}
+      {/* VidSrc Player */}
       {showPlayer && (
         <div ref={playerRef}>
           <PlayWindow
