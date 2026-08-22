@@ -7,6 +7,26 @@
 
 const changelog = [
   {
+    date: '2026-08-22',
+    title: 'Automated AI Changelog Generator',
+    description:
+      'Added a new CLI tool that uses AI to automatically generate user-friendly changelog entries from git changes. This streamlines the documentation process and keeps release notes effortlessly up to date.',
+    author: {
+      name: 'Dev',
+      avatarUrl: 'https://api.dicebear.com/9.x/initials/svg?seed=AA&radius=50&backgroundColor=F4B942&textColor=000000',
+    },
+  },
+  {
+    date: '2026-08-22',
+    title: 'Fixed mobile player controls',
+    description:
+      'Auto-hides top bar on mobile after 3 seconds, allowing access to the player\'s native controls.',
+    author: {
+      name: 'Dev',
+      avatarUrl: 'https://api.dicebear.com/9.x/initials/svg?seed=AA&radius=50&backgroundColor=F4B942&textColor=000000',
+    },
+  },
+  {
     date: '2026-08-18',
     title: 'Migrated Video Player from VidKing to VidSrc',
     description:
