@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { IconX } from '@tabler/icons-react';
 import { getProgress, saveProgress } from './hooks/useWatchProgress';
 import { VIDSRC_BASE } from '@/lib/player';
@@ -16,6 +16,43 @@ import { VIDSRC_BASE } from '@/lib/player';
  */
 const PlayWindow = ({ tmdbId, mediaType, season, episode, onClose, autoPlay = true }) => {
   const iframeRef = useRef(null);
+  const [controlsVisible, setControlsVisible] = useState(true);
+  const hideTimerRef = useRef(null);
+
+  // Detect mobile/touch device
+  const isTouchDevice = typeof window !== 'undefined' && (
+    'ontouchstart' in window || navigator.maxTouchPoints > 0
+  );
+
+  // Auto-hide controls on mobile after 3 seconds
+  const scheduleHide = useCallback(() => {
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    hideTimerRef.current = setTimeout(() => {
+      setControlsVisible(false);
+    }, 3000);
+  }, []);
+
+  // Show controls initially, then auto-hide on touch devices
+  useEffect(() => {
+    if (isTouchDevice) {
+      scheduleHide();
+    }
+    return () => {
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    };
+  }, [isTouchDevice, scheduleHide]);
+
+  // Toggle controls on tap (mobile)
+  const handlePlayerTap = useCallback(() => {
+    if (!isTouchDevice) return;
+    setControlsVisible((prev) => {
+      if (!prev) {
+        // Showing controls — schedule auto-hide
+        scheduleHide();
+      }
+      return !prev;
+    });
+  }, [isTouchDevice, scheduleHide]);
 
   // Build the VidSrc embed URL
   const buildSrc = useCallback(() => {
@@ -52,11 +89,20 @@ const PlayWindow = ({ tmdbId, mediaType, season, episode, onClose, autoPlay = tr
     return () => window.removeEventListener('message', handleMessage);
   }, []);
 
-  // Lock body scroll when fullscreen player is open
+  // Lock body scroll & prevent pull-to-refresh when fullscreen player is open
   useEffect(() => {
+    const prevOverflow = document.body.style.overflow;
+    const prevOverscroll = document.body.style.overscrollBehavior;
+    const prevTouchAction = document.body.style.touchAction;
+
     document.body.style.overflow = 'hidden';
+    document.body.style.overscrollBehavior = 'none';
+    document.body.style.touchAction = 'none';
+
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = prevOverflow || 'unset';
+      document.body.style.overscrollBehavior = prevOverscroll || '';
+      document.body.style.touchAction = prevTouchAction || '';
     };
   }, []);
 
@@ -65,24 +111,45 @@ const PlayWindow = ({ tmdbId, mediaType, season, episode, onClose, autoPlay = tr
   return (
     <section
       id="play-window"
-      className="fixed inset-0 z-[100] bg-black w-screen h-screen flex flex-col animate-in fade-in zoom-in-95 duration-300"
+      style={{
+        paddingTop: 'env(safe-area-inset-top, 0px)',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+      }}
+      className="fixed inset-0 z-[100] bg-black w-screen h-[100dvh] flex flex-col animate-in fade-in zoom-in-95 duration-300"
     >
-      {/* Top bar */}
-      <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-3 bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
-        <span className="text-xs text-white/50 font-medium tracking-wide uppercase select-none pointer-events-none">
+      {/* Top bar — auto-hides on mobile to not block player controls */}
+      <div
+        className={`absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-3 bg-gradient-to-b from-black/80 to-transparent transition-all duration-300 ${
+          controlsVisible
+            ? 'opacity-100 translate-y-0'
+            : 'opacity-0 -translate-y-full pointer-events-none'
+        }`}
+        style={{ paddingTop: 'env(safe-area-inset-top, 12px)' }}
+      >
+        <span className="text-xs text-white/50 font-medium tracking-wide uppercase select-none">
           Now Playing
         </span>
-        <div className="flex items-center gap-2 pointer-events-auto">
+        <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={onClose}
-            className="flex items-center justify-center size-10 rounded-full bg-white/10 text-white hover:bg-red-500/90 hover:scale-105 backdrop-blur-sm transition-all duration-200 shadow-lg"
+            className="flex items-center justify-center size-10 rounded-full bg-white/10 text-white hover:bg-red-500/90 hover:scale-105 active:scale-95 backdrop-blur-sm transition-all duration-200 shadow-lg"
             aria-label="Close player"
           >
             <IconX className="size-5" />
           </button>
         </div>
       </div>
+
+      {/* Tap zone for showing/hiding controls on mobile */}
+      {isTouchDevice && !controlsVisible && (
+        <button
+          type="button"
+          onClick={handlePlayerTap}
+          className="absolute top-0 left-0 right-0 h-16 z-[11] bg-transparent"
+          aria-label="Show player controls"
+        />
+      )}
 
       {/* Player iframe */}
       <div className="flex-1 w-full h-full relative">
@@ -92,8 +159,12 @@ const PlayWindow = ({ tmdbId, mediaType, season, episode, onClose, autoPlay = tr
           src={src}
           title="VidSrc Player"
           className="absolute inset-0 w-full h-full border-0"
-          allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+          scrolling="no"
+          allow="autoplay; fullscreen; picture-in-picture; encrypted-media; web-share"
           allowFullScreen
+          // Cross-browser fullscreen support
+          webkitallowfullscreen="true"
+          mozallowfullscreen="true"
         />
       </div>
     </section>
@@ -127,3 +198,4 @@ const PlayWindow = ({ tmdbId, mediaType, season, episode, onClose, autoPlay = tr
  */
 
 export default PlayWindow;
+
