@@ -1,4 +1,4 @@
-# 🍿 Movo
+# Movo
 
 **[🚀 View Live Site](https://movo-ivlh.onrender.com/)**
 
@@ -8,7 +8,7 @@ By integrating directly with TMDB for rich metadata and using a fast React/Tailw
 
 ---
 
-## ✨ Features
+## Features
 
 - **Extensive Media Library:** Powered by the TMDB API to fetch thousands of movies and TV shows, complete with cast details, trailers, and similar recommendations.
 - **Cinematic Player:** A built-in, mobile-optimized player (via VidSrc) that tracks watch progress and supports cross-browser full-screen viewing.
@@ -18,7 +18,7 @@ By integrating directly with TMDB for rich metadata and using a fast React/Tailw
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Framework:** React 19 + Vite
 - **Styling:** Tailwind CSS v4, custom CSS variables, and Shadcn UI
@@ -28,7 +28,7 @@ By integrating directly with TMDB for rich metadata and using a fast React/Tailw
 
 ---
 
-## 🚀 Setup Pipeline
+## Setup Pipeline
 
 Follow these steps to get the project running on your local machine:
 
@@ -61,7 +61,7 @@ Your app will now be running on `http://localhost:5173`.
 
 ---
 
-## 📜 Available Scripts
+## Available Scripts
 
 - `npm run dev`: Starts the local development server.
 - `npm run build`: Bundles the app into static files for production.
