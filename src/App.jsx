@@ -12,6 +12,7 @@ import TrendingTodaySection from './components/sections/TrendingTodaySection';
 import ProviderSection from './components/sections/ProviderSection';
 import GenresSection from './components/sections/GenresSection';
 import AllMoviesSection from './components/sections/AllMoviesSection';
+import SearchList from './components/SearchList/SearchList';
 import Footer from './components/Footer';
 import ChangelogPage from './pages/Changelog';
 import { searchMovies, discoverMovies, getTrending, getGenres } from '@/api/ENDPOINTS';
@@ -26,6 +27,9 @@ const App = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [genres, setGenres] = useState([]);
+
+  // The query that the user committed to (via Enter or "See all results")
+  const [activeSearchQuery, setActiveSearchQuery] = useState('');
 
   useDebounce(() => setDebouncedSearchItem(searchItem), 500, [searchItem])
 
@@ -61,6 +65,12 @@ const App = () => {
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
+  };
+
+  const handleSearchSubmit = (query) => {
+    setActiveSearchQuery(query);
+    // Scroll to the search results section
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const loadTrendingMovies = async () => {
@@ -100,21 +110,52 @@ const App = () => {
         <Route path="/" element={
           <main className="min-h-screen bg-background">
             <div className="relative">
-              <Navbar searchItem={searchItem} setSearchItem={setSearchItem} />
-              <HeroCarousel trendingMovies={trendingMovies} genres={genres} />
-
-              <Top10Section trendingMovies={trendingMovies} />
-              <TrendingTodaySection />
-              <ProviderSection />
-              <GenresSection />
-              <AllMoviesSection
-                isLoading={isLoading}
-                errorMessage={errorMessage}
-                movieList={movieList}
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
+              <Navbar
+                searchItem={searchItem}
+                setSearchItem={setSearchItem}
+                onSearchSubmit={handleSearchSubmit}
+                onLogoClick={() => {
+                  setActiveSearchQuery('');
+                  setSearchItem('');
+                }}
               />
+              {!activeSearchQuery && (
+                <HeroCarousel trendingMovies={trendingMovies} genres={genres} />
+              )}
+
+              {/* Show SearchList when user has submitted a search, otherwise show normal sections */}
+              {activeSearchQuery ? (
+                <>
+                  <SearchList query={activeSearchQuery} />
+                  {/* Clear search button */}
+                  <div className="flex justify-center pb-8 bg-[#0F0F0F]">
+                    <button
+                      onClick={() => {
+                        setActiveSearchQuery('');
+                        setSearchItem('');
+                      }}
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
+                    >
+                      ← Back to browsing
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <Top10Section trendingMovies={trendingMovies} />
+                  <TrendingTodaySection />
+                  <ProviderSection />
+                  <GenresSection />
+                  <AllMoviesSection
+                    isLoading={isLoading}
+                    errorMessage={errorMessage}
+                    movieList={movieList}
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                  />
+                </>
+              )}
               <Footer />
             </div>
           </main>
@@ -128,3 +169,4 @@ const App = () => {
 }
 
 export default App
+
