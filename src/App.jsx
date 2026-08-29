@@ -4,6 +4,7 @@ import { useDebounce } from 'react-use';
 import { Routes, Route } from 'react-router-dom';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import FloatingDevelopmentAlert from './components/FloatingDevelopmentAlert';
+import Notice from './components/Notice';
 import Navbar from './components/Navbar';
 import HeroCarousel from './components/HeroCarousel';
 import MovieDetails from './components/moviedetails';
@@ -106,6 +107,7 @@ const App = () => {
   return (
     <TooltipProvider>
       {/* <FloatingDevelopmentAlert /> */}
+      <Notice />
       <Routes>
         <Route path="/" element={
           <main className="min-h-screen bg-background">
