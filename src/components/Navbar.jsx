@@ -4,14 +4,14 @@ import Search from './Search';
 import { Button } from '@/components/ui/button';
 import { IconHome, IconUser, IconSearch } from '@tabler/icons-react';
 
-const Navbar = ({ searchItem, setSearchItem }) => {
+const Navbar = ({ searchItem, setSearchItem, onSearchSubmit, onLogoClick }) => {
   const [showSearchModal, setShowSearchModal] = useState(false);
 
   return (
     <>
       <nav className="absolute top-0 left-0 right-0 z-50 py-4 px-4 sm:px-6 flex items-center justify-between bg-gradient-to-b from-black/80 to-transparent">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2" onClick={onLogoClick}>
           <img src="/logo.png" alt="Movo Logo" className="w-8 h-8" />
           <span className="text-foreground text-xl font-heading font-bold tracking-wide">Movo</span>
         </Link>
@@ -27,7 +27,7 @@ const Navbar = ({ searchItem, setSearchItem }) => {
           </Link>
 
           {/* Search Toggle (Dummy Input) */}
-          <div 
+          <div
             onClick={() => setShowSearchModal(true)}
             className="flex items-center gap-2 bg-white/10 hover:bg-white/20 transition-colors border border-white/10 rounded-full px-4 py-2 cursor-text w-48 sm:w-64"
             role="button"
@@ -51,6 +51,7 @@ const Navbar = ({ searchItem, setSearchItem }) => {
           searchItem={searchItem}
           setSearchItem={setSearchItem}
           onClose={() => setShowSearchModal(false)}
+          onSubmit={onSearchSubmit}
         />
       )}
     </>
@@ -58,3 +59,4 @@ const Navbar = ({ searchItem, setSearchItem }) => {
 };
 
 export default Navbar;
+

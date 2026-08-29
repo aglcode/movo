@@ -7,6 +7,16 @@
 
 const changelog = [
   {
+    date: '2026-08-29',
+    title: 'Dedicated Search Results View',
+    description:
+      'Submitting a search now opens a dedicated results page so you can easily browse all matching titles. You can return to general browsing at any time with a single click.',
+    author: {
+      name: 'Dev',
+      avatarUrl: 'https://api.dicebear.com/9.x/initials/svg?seed=AA&radius=50&backgroundColor=F4B942&textColor=000000',
+    },
+  },
+  {
     date: '2026-08-22',
     title: 'Automated AI Changelog Generator',
     description:

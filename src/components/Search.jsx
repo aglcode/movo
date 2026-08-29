@@ -4,7 +4,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { IconSearch, IconX, IconClock, IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import { searchMovies } from '@/api/ENDPOINTS';
 
-const Search = ({ searchItem, setSearchItem, onClose }) => {
+const Search = ({ searchItem, setSearchItem, onClose, onSubmit }) => {
+  const handleSearchSubmit = () => {
+    if (searchItem.trim().length >= 2) {
+      saveRecentSearch(searchItem);
+      if (onSubmit) onSubmit(searchItem);
+      onClose();
+    }
+  };
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef(null);
@@ -31,7 +38,7 @@ const Search = ({ searchItem, setSearchItem, onClose }) => {
     }
     // Prevent body scroll
     document.body.style.overflow = 'hidden';
-    
+
     // Handle click outside for dropdown
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -39,7 +46,7 @@ const Search = ({ searchItem, setSearchItem, onClose }) => {
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    
+
     return () => {
       document.body.style.overflow = 'auto';
       document.removeEventListener('mousedown', handleClickOutside);
@@ -84,23 +91,23 @@ const Search = ({ searchItem, setSearchItem, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex justify-center bg-black/80 backdrop-blur-sm px-4 pt-[15vh]">
-      <div 
-        className="absolute inset-0" 
+      <div
+        className="absolute inset-0"
         onClick={() => {
           setSearchItem('');
           onClose();
         }}
       />
       <div className="relative w-full max-w-xl flex flex-col gap-4 animate-in fade-in slide-in-from-top-4 duration-200">
-        
+
         {/* Header */}
         <div className="flex items-center justify-between relative z-50">
           <h2 className="text-2xl font-bold text-white tracking-wide">Search</h2>
           <div className="flex items-center gap-2">
-            
+
             {/* Category Dropdown */}
             <div className="relative" ref={dropdownRef}>
-              <button 
+              <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="flex items-center gap-2 bg-[#121212] border border-white/10 hover:bg-[#1a1a1a] transition-colors text-sm text-gray-300 px-3 py-2 rounded-md"
               >
@@ -111,7 +118,7 @@ const Search = ({ searchItem, setSearchItem, onClose }) => {
                   <IconChevronDown size={14} className="text-gray-500" />
                 )}
               </button>
-              
+
               {isDropdownOpen && (
                 <div className="absolute right-0 top-full mt-2 w-48 bg-[#121212] border border-white/10 rounded-md shadow-2xl overflow-hidden z-[60]">
                   {categories.map((category) => (
@@ -121,11 +128,10 @@ const Search = ({ searchItem, setSearchItem, onClose }) => {
                         setSelectedCategory(category);
                         setIsDropdownOpen(false);
                       }}
-                      className={`w-full text-left px-4 py-3 text-sm transition-colors ${
-                        selectedCategory === category 
-                          ? 'text-white font-medium' 
+                      className={`w-full text-left px-4 py-3 text-sm transition-colors ${selectedCategory === category
+                          ? 'text-white font-medium'
                           : 'text-gray-400 hover:text-white hover:bg-white/5'
-                      }`}
+                        }`}
                     >
                       {category}
                     </button>
@@ -135,7 +141,7 @@ const Search = ({ searchItem, setSearchItem, onClose }) => {
             </div>
 
             {/* Close Button */}
-            <button 
+            <button
               onClick={() => {
                 setSearchItem('');
                 onClose();
@@ -156,6 +162,12 @@ const Search = ({ searchItem, setSearchItem, onClose }) => {
             placeholder="Type here to search..."
             value={searchItem}
             onChange={(e) => setSearchItem(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSearchSubmit();
+              }
+            }}
             className="w-full bg-[#121212] border border-white/5 rounded-xl h-14 pl-12 pr-4 text-white placeholder:text-gray-500 focus:outline-none focus:border-white/20 transition-colors"
           />
         </div>
@@ -206,6 +218,14 @@ const Search = ({ searchItem, setSearchItem, onClose }) => {
                       </div>
                     </Link>
                   ))}
+                  {/* See all results link */}
+                  <button
+                    onClick={handleSearchSubmit}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm text-primary hover:bg-white/5 transition-colors duration-200 border-t border-white/5 font-medium"
+                  >
+                    <IconSearch size={14} />
+                    See all results for "{searchItem}"
+                  </button>
                 </div>
               ) : (
                 <div className="px-4 py-8 text-gray-500 text-center text-sm">No results found for "{searchItem}"</div>
@@ -217,7 +237,7 @@ const Search = ({ searchItem, setSearchItem, onClose }) => {
               <div className="flex items-center justify-between mb-4">
                 <span className="text-xs font-semibold text-gray-500 tracking-wider">RECENT</span>
                 {recentSearches.length > 0 && (
-                  <button 
+                  <button
                     onClick={clearRecent}
                     className="text-xs text-gray-500 hover:text-white transition-colors"
                   >
@@ -228,8 +248,8 @@ const Search = ({ searchItem, setSearchItem, onClose }) => {
               <div className="space-y-1">
                 {recentSearches.length > 0 ? (
                   recentSearches.map((query, idx) => (
-                    <div 
-                      key={idx} 
+                    <div
+                      key={idx}
                       className="flex items-center gap-3 text-gray-400 hover:text-white hover:bg-white/5 px-2 py-2 rounded-md cursor-pointer transition-colors"
                       onClick={() => setSearchItem(query)}
                     >
