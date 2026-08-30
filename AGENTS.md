@@ -48,3 +48,16 @@ movie/TV info. It has no custom backend — the browser talks directly to TMDB
   with a co-located `hooks/` subfolder if needed.
 - Never commit real API keys or `.env*` files (other than `.env.example`).
 - Run `npm run lint` and `npm run build` before opening a PR.
+
+## Deployment
+- Hosted on Vercel. Every push/merge to `main` triggers
+  `.github/workflows/deploy.yml`, which installs deps, lints, builds, then
+  deploys to Vercel production via the Vercel CLI.
+- The workflow needs `VERCEL_TOKEN`, `VITE_SUPABASE_URL`, and
+  `VITE_SUPABASE_ANON_KEY` set as GitHub Actions repo secrets — it will fail
+  without them.
+- Vercel's own Git auto-deploy integration should stay **off** for this repo
+  to avoid duplicate deployments; the GitHub Actions workflow is the single
+  deploy path.
+- A failing lint or build step blocks the deploy — fix those before merging
+  to `main`, not after.
