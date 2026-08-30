@@ -1,6 +1,6 @@
 import React from 'react';
 import { IconPlayerPlayFilled, IconDownload } from '@tabler/icons-react';
-import { getProgress } from '../../PlayWindow/hooks/useWatchProgress';
+
 
 const IMAGE_BASE = 'https://image.tmdb.org/t/p/w300';
 
@@ -11,7 +11,6 @@ const EpisodeCard = ({ episode, index, seasonNumber, onPlay }) => {
   // Check for saved watch progress (Temporarily disabled)
   // const progress = getProgress('tv', episode.show_id, seasonNumber, epNum);
   // const progressPercent = progress?.progress ?? 0;
-  const progressPercent = 0;
 
   const handlePlay = () => {
     if (onPlay) {
