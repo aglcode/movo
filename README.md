@@ -1,6 +1,6 @@
 # Movo
 
-**[🚀 View Live Site](https://movo-ivlh.onrender.com/)**
+**[🚀 View Live Site](https://movo-alpha.vercel.app/)**
 
 Movo is a modern web application designed to solve the friction of discovering and watching media online. It provides a clean, premium alternative to cluttered streaming sites—a seamless, responsive interface where users can easily browse trending movies, track TV show episodes, and instantly launch a full-screen video player.
 
@@ -11,7 +11,7 @@ By integrating directly with TMDB for rich metadata and using a fast React/Tailw
 ## Features
 
 - **Extensive Media Library:** Powered by the TMDB API to fetch thousands of movies and TV shows, complete with cast details, trailers, and similar recommendations.
-- **Cinematic Player:** A built-in, mobile-optimized player (via VidSrc) that tracks watch progress and supports cross-browser full-screen viewing.
+- **Cinematic Player:** A built-in, mobile-optimized player (powered by CineSrc with VidSrc fallback) that tracks watch progress and supports cross-browser full-screen viewing.
 - **TV Show Support:** Dedicated episode and season browsing for binge-watching.
 - **AI-Powered Changelogs:** Features a custom internal script (`npm run changelog`) that reads Git commits and automatically writes release notes using the Google Gemini AI.
 - **Premium UI:** Dark-mode focused, glassmorphic design built with Tailwind CSS and Shadcn UI components.

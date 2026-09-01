@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useCallback, useState } from 'react';
-import { IconX } from '@tabler/icons-react';
+import { IconX, IconAlertCircle } from '@tabler/icons-react';
 import { getProgress, saveProgress } from './hooks/useWatchProgress';
-import { VIDSRC_BASE } from '@/lib/player';
+import { VIDSRC_BASE, CINESRC_BASE, BRAND_COLOR } from '@/lib/player';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 /**
  * PlayWindow — Full-width VidSrc iframe player.
@@ -17,7 +18,11 @@ import { VIDSRC_BASE } from '@/lib/player';
 const PlayWindow = ({ tmdbId, mediaType, season, episode, onClose, autoPlay = true }) => {
   const iframeRef = useRef(null);
   const [controlsVisible, setControlsVisible] = useState(true);
+  const [activeServer, setActiveServer] = useState('cinesrc');
+  const [showFallbackTooltip, setShowFallbackTooltip] = useState(false);
   const hideTimerRef = useRef(null);
+  const fallbackTimerRef = useRef(null);
+  const loadingTimerRef = useRef(null);
 
   // Detect mobile/touch device
   const isTouchDevice = typeof window !== 'undefined' && (
@@ -54,30 +59,82 @@ const PlayWindow = ({ tmdbId, mediaType, season, episode, onClose, autoPlay = tr
     });
   }, [isTouchDevice, scheduleHide]);
 
-  // Build the VidSrc embed URL
+  // Build the embed URL
   const buildSrc = useCallback(() => {
     const params = new URLSearchParams();
-    if (autoPlay) params.set('autoplay', '1');
 
-    // Resume from saved progress
-    const saved = getProgress(mediaType, tmdbId, season, episode);
-    if (saved?.currentTime && saved.currentTime > 5) {
-      params.set('startAt', String(Math.floor(saved.currentTime)));
-    }
+    if (activeServer === 'cinesrc') {
+      params.set('color', `%23${BRAND_COLOR}`);
+      if (autoPlay) params.set('autoplay', '1');
+      if (mediaType === 'tv' && season != null && episode != null) {
+        params.set('autonext', '1');
+        return `${CINESRC_BASE}/tv/${tmdbId}?s=${season}&e=${episode}&${params.toString()}`;
+      }
+      return `${CINESRC_BASE}/movie/${tmdbId}?${params.toString()}`;
+    } else {
+      // vidsrc
+      if (autoPlay) params.set('autoplay', '1');
 
-    if (mediaType === 'tv' && season != null && episode != null) {
-      params.set('autonext', '1');
+      // Resume from saved progress
+      const saved = getProgress(mediaType, tmdbId, season, episode);
+      if (saved?.currentTime && saved.currentTime > 5) {
+        params.set('startAt', String(Math.floor(saved.currentTime)));
+      }
+
+      if (mediaType === 'tv' && season != null && episode != null) {
+        params.set('autonext', '1');
+        const qs = params.toString();
+        return `${VIDSRC_BASE}/tv/${tmdbId}/${season}/${episode}${qs ? `?${qs}` : ''}`;
+      }
+
       const qs = params.toString();
-      return `${VIDSRC_BASE}/tv/${tmdbId}/${season}/${episode}${qs ? `?${qs}` : ''}`;
+      return `${VIDSRC_BASE}/movie/${tmdbId}${qs ? `?${qs}` : ''}`;
+    }
+  }, [tmdbId, mediaType, season, episode, autoPlay, activeServer]);
+
+  // Handle fallback
+  const handleFallback = useCallback(() => {
+    if (activeServer === 'cinesrc') {
+      setActiveServer('vidsrc');
+      setShowFallbackTooltip(true);
+      if (fallbackTimerRef.current) clearTimeout(fallbackTimerRef.current);
+      fallbackTimerRef.current = setTimeout(() => {
+        setShowFallbackTooltip(false);
+      }, 5000);
+    }
+  }, [activeServer]);
+
+  // Fallback timeout
+  useEffect(() => {
+    // 10s timeout for cinesrc
+    if (activeServer === 'cinesrc') {
+      loadingTimerRef.current = setTimeout(() => {
+        handleFallback();
+      }, 10000);
     }
 
-    const qs = params.toString();
-    return `${VIDSRC_BASE}/movie/${tmdbId}${qs ? `?${qs}` : ''}`;
-  }, [tmdbId, mediaType, season, episode, autoPlay]);
+    return () => {
+      if (loadingTimerRef.current) clearTimeout(loadingTimerRef.current);
+      if (fallbackTimerRef.current) clearTimeout(fallbackTimerRef.current);
+    };
+  }, [activeServer, handleFallback]);
 
-  // Listen for VidSrc postMessage events
+  // Listen for VidSrc and CineSrc postMessage events
   useEffect(() => {
     const handleMessage = (event) => {
+      // CineSrc events
+      if (event.origin === 'https://cinesrc.st') {
+        const msg = event.data;
+        if (!msg || !msg.type) return;
+
+        if (msg.type === 'cinesrc:ready') {
+          if (loadingTimerRef.current) clearTimeout(loadingTimerRef.current);
+        } else if (msg.type === 'cinesrc:error') {
+          handleFallback();
+        }
+        return;
+      }
+
       // VidSrc sends data as an object with { type, data }
       const msg = event.data;
       if (!msg || msg.type !== 'PLAYER_EVENT' || !msg.data) return;
@@ -87,7 +144,7 @@ const PlayWindow = ({ tmdbId, mediaType, season, episode, onClose, autoPlay = tr
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, []);
+  }, [handleFallback]);
 
   // Lock body scroll & prevent pull-to-refresh when fullscreen player is open
   useEffect(() => {
@@ -119,17 +176,30 @@ const PlayWindow = ({ tmdbId, mediaType, season, episode, onClose, autoPlay = tr
     >
       {/* Top bar — auto-hides on mobile to not block player controls */}
       <div
-        className={`absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-3 bg-gradient-to-b from-black/80 to-transparent transition-all duration-300 ${
-          controlsVisible
+        className={`absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-3 bg-gradient-to-b from-black/80 to-transparent transition-all duration-300 ${controlsVisible
             ? 'opacity-100 translate-y-0'
             : 'opacity-0 -translate-y-full pointer-events-none'
-        }`}
+          }`}
         style={{ paddingTop: 'env(safe-area-inset-top, 12px)' }}
       >
         <span className="text-xs text-white/50 font-medium tracking-wide uppercase select-none">
           Now Playing
         </span>
         <div className="flex items-center gap-2">
+          {activeServer === 'vidsrc' && (
+            <TooltipProvider>
+              <Tooltip open={showFallbackTooltip} onOpenChange={setShowFallbackTooltip}>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center justify-center size-10 rounded-full bg-white/10 text-white/80 hover:text-white backdrop-blur-sm transition-all duration-200 cursor-pointer">
+                    <IconAlertCircle className="size-5 text-amber-500" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" align="end" className="bg-zinc-900 text-white border border-zinc-800 mr-4">
+                  <p>Primary server unavailable. Switched to VidSrc.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
           <button
             type="button"
             onClick={onClose}

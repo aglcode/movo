@@ -7,6 +7,16 @@
 
 const changelog = [
   {
+    date: '2026-09-01',
+    title: 'Upgraded Video Player with Automatic Server Fallback',
+    description:
+      'We\'ve integrated CineSrc as our new primary video streaming source, paired with automatic fallback to VidSrc to ensure uninterrupted playback if a server becomes unavailable.',
+    author: {
+      name: 'Dev',
+      avatarUrl: 'https://api.dicebear.com/9.x/initials/svg?seed=AA&radius=50&backgroundColor=F4B942&textColor=000000',
+    },
+  },
+  {
     date: '2026-08-29',
     title: 'Stay Informed with New In-App Notices',
     description:
