@@ -48,6 +48,8 @@ const isPageReload = () => {
   return performance.navigation?.type === 1;
 };
 
+let lastCheckedEntryKeyThisSession = null;
+
 const Notice = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -56,11 +58,6 @@ const Notice = () => {
 
   useEffect(() => {
     if (!latestEntry || location.pathname !== '/') {
-      setIsVisible(false);
-      return;
-    }
-
-    if (!isPageReload()) {
       setIsVisible(false);
       return;
     }
@@ -75,9 +72,21 @@ const Notice = () => {
       stored.entryKey === currentEntryKey &&
       now - stored.shownAt < THREE_DAYS_MS;
 
-    const shouldShow = hasNewEntry || sameEntryWithinGracePeriod;
+    let shouldShow = false;
+
+    if (hasNewEntry) {
+      shouldShow = true;
+    } else if (sameEntryWithinGracePeriod) {
+      if (lastCheckedEntryKeyThisSession !== currentEntryKey && isPageReload()) {
+        shouldShow = true;
+      }
+    }
 
     setIsVisible(shouldShow);
+
+    if (shouldShow) {
+      lastCheckedEntryKeyThisSession = currentEntryKey;
+    }
 
     if (hasNewEntry) {
       setStoredNotice(latestEntry);
