@@ -55,14 +55,14 @@ const Footer = () => {
               </a>{' '}
               for data, and{' '}
               <a
-                href="https://vidsrc.net/"
+                href="https://cinesrc.st/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-brand hover:underline"
               >
-                VidSrc
+                CineSrc
               </a>{' '}
-              for video playback. Movo is not endorsed or certified by either service.
+              (with VidSrc fallback) for video playback. Movo is not endorsed or certified by these services.
             </p>
           </div>
         </div>
